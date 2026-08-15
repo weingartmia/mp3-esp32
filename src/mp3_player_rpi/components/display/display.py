@@ -37,7 +37,7 @@ class Display(SH1106):
 
     def draw_playing(self):
         self.draw.text((30,10), self.player.music[self.selected.index], font = self.font13, fill = 1)
-        
+        self.draw.text((35,0), self.player.total_time,font=self.font20,fill=0) 
         
 
 
