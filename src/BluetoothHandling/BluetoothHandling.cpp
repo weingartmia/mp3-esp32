@@ -1,13 +1,18 @@
 #include "BluetoothHandling.h"
+#include "utils.h"
 
 
-BluetoothManager::BluetoothManager( ):
-    connectedDevice{},
-    connectingDevice{}
+BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player): 
+    audioProcessor(audioProcessor), 
+    player(player)
+    // connectedDevice{},
+    // connectingDevice{}
+
 {
-
+    instance = this;
 }
 BluetoothStatus BluetoothManager::status= BluetoothStatus::DISCONNECTED;
+// BluetoothManager* BluetoothManager :: instance= nullptr;
 
 void BluetoothManager::init(const String& localName){
 
@@ -16,6 +21,8 @@ void BluetoothManager::init(const String& localName){
     atdpSource.set_ssid_callback(searchSSID);
     atdpSource.set_data_callback(audioDataCallback);
     atdpSource.set_discovery_mode_callback(handleDiscoveryStateChanged);
+    atdpSource.set_avrc_passthru_command_callback(buttonCommands);
+
     
 }
 bool BluetoothManager ::searchSSID(const char* ssid, esp_bd_addr_t address, int rrsi){
@@ -41,7 +48,7 @@ void BluetoothManager ::startDiscovering(){
 
 void BluetoothManager::stopDiscovering(){
 
-    if (status==BluetoothStatus::DISCOVERING)
+    if (status!=BluetoothStatus::DISCOVERING)
         return;
         Serial.println("Stopping Bluetooth device discovery...");
     if (esp_bt_gap_cancel_discovery() != ESP_OK) {
@@ -67,6 +74,7 @@ void BluetoothManager:: handleConnectionChanged(esp_a2d_connection_state_t state
         Serial.println("****disconecting****");
         status =BluetoothStatus::DISCONNECTING;
         break;
+
   }
 
 }
@@ -83,33 +91,85 @@ void BluetoothManager::handleDiscoveryStateChanged(esp_bt_gap_discovery_state_t 
     }
 
 }
-void BluetoothManager::connect(const BluetoothDevice& device){
+bool BluetoothManager::connect(){// connect to selected device
 
-    connectingDevice = device;
-    status= BluetoothStatus::CONNECTING;
-    atdpSource.connect_to(const_cast<uint8_t*>(device.address));
+    if (status==BluetoothStatus::DISCOVERING) stopDiscovering();
+    Serial.print("connecting device with index");
+    Serial.println(index);
+
+    if (atdpSource.connect_to(const_cast<uint8_t*>(avaibleDevices[index].address))){
+        Serial.println("Succesfully connected");
+        return true;
+    }
+    status= BluetoothStatus::ERRORCONNECTING;
+    return false;    
 }
 
-void BluetoothManager::disconnect(){
+void BluetoothManager::disconnect(){// disconnect from current device
 
-    connectedDevice={};
-    status=BluetoothStatus::DISCONNECTED;
     atdpSource.set_connected(false);
 }
 
-int32_t BluetoothManager::audioDataCallback(uint8_t *data, int32_t bytes){
+int32_t BluetoothManager::audioDataCallback(uint8_t *data, int32_t bytes){// callback from a2dp source to process more audio
 
     if (!data || bytes<=0) {
         Serial.println("data or bytes arent valid");
         return 0;
     }
 
-    // uin32_t result = audioProcesor.readAudioData(data,bytes);
-    int32_t result =0;
+    int32_t result = instance->audioProcessor->readAudio(data, bytes);
     if (result==0){
         memset(data,0,bytes);
         return bytes;
     }
     return result;
+
+}
+
+void BluetoothManager:: buttonCommands(uint8_t key, bool isReleased){// handling external key pressed from connected device
+    if (!isReleased) return;
+
+    Serial.print("button was pressed from device.... ");
+    switch (key) {
+        case ESP_AVRC_PT_CMD_PLAY:     Serial.println("playing ");instance->player->play(); break;
+        case ESP_AVRC_PT_CMD_PAUSE:    Serial.println("paused"); instance->player->pause(); break;
+        case ESP_AVRC_PT_CMD_STOP:     Serial.println("stopped"); instance->player->stop(); break;
+        case ESP_AVRC_PT_CMD_FORWARD:  Serial.println("next"); instance->player->next(); break;
+        case ESP_AVRC_PT_CMD_BACKWARD: Serial.println("previous"); instance->player->previous(); break;
+        case ESP_AVRC_PT_CMD_VOL_UP:   Serial.println("volume up"); instance->volumeUp(); break;
+        case ESP_AVRC_PT_CMD_VOL_DOWN: Serial.println("volume down"); instance->volumeDown(); break;
+        default: Serial.printf("Unknown: 0x%02X\n", key); break;
+    }
+}
+
+void BluetoothManager:: volumeDown(){
+    _currentVolume -= VOLUME_STEP;
+
+    if (_currentVolume <= 0) _currentVolume=0;
+    setVolume();
+}
+void BluetoothManager::volumeUp(){
+    _currentVolume += VOLUME_STEP;
+
+    if (_currentVolume >= 127) _currentVolume=127;
+    setVolume();
+}
+void BluetoothManager::setVolume(){
+
+    atdpSource.set_volume(_currentVolume);
+    if (status==BluetoothStatus::CONNECTED ) {
+        esp_avrc_ct_send_set_absolute_volume_cmd(0, _currentVolume);
+    }
+
+}
+
+void BluetoothManager::increaseIndex(){
+    if (index == avaibleDevices.size() -1 ) index=0;
+    else index +=1;
+
+}
+void BluetoothManager::decreaseIndex(){
+    if (index <= 0) index=avaibleDevices.size();
+    else index -=1;
 
 }

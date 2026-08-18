@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #define ADC_SECTION 5 //how many dimensions joystick has
 
 #ifdef 					__ets__       //esp8266
@@ -8,5 +10,15 @@
 #define ADC_BIT 1024          //other MCU, revise according to actual situation
 #endif
 
-#define PRESS_TIME 100
-#define HOLD_TIME 700
+#define PRESS_TIME 200 // over 200 miliiseconds press is considered long hold
+#define ROOT "/"
+
+#define SD_CARD_CS D3 // sd card pin
+
+#define KEY_A_BUTTON D3 // button a pin
+#define KEY_B_BUTTON D3 // button b pin
+#define KEY_ANALOG D3 // analog pin
+
+#define VOLUME_STEP 5 // step down  step up volume that goes from 0 to 127
+#define SCROLLING_OFFSET 10
+

@@ -19,6 +19,9 @@ enum ButtonKeys{
     KEY_B_HOLD
 };
 
+
+
+
 class ButtonHandling{
     public:
         ButtonHandling(const uint8_t keyA,const uint8_t keyB, const uint8_t analogKey);
@@ -30,8 +33,20 @@ class ButtonHandling{
         void init();
         AnalogKeys getAnalogValue();
         ButtonKeys getButtonValue();
+
+        void onButtonEvent(std::function<void()> callback, ButtonKeys key);
+        void onAnalogEvent(std::function<void()> callback, AnalogKeys key);
+
+        
+
+        
     private:
         int timer;
+        int interval;
+        unsigned long Time;
+        bool handleButtonPress(bool onKeyEnter, uint8_t pin);
+        
+
 
 
 };

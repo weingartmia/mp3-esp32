@@ -3,9 +3,9 @@
 #include <Arduino.h>
 
 ButtonHandling::ButtonHandling(const uint8_t keyA,const uint8_t keyB, const uint8_t analogKey): 
-keyA(keyA),keyB(keyB),analogKey(analogKey)
+keyA(keyA),keyB(keyB),analogKey(analogKey),Time(millis()),interval(Time),timer(Time)
 {
-timer=0;
+
 }
 
 void ButtonHandling::init(){
@@ -15,22 +15,43 @@ void ButtonHandling::init(){
     
 }
 
-ButtonKeys  ButtonHandling::getButtonValues(){
-    unsigned long Time= millis();
-    int interval= Time;
 
+bool ButtonHandling:: handleButtonPress(bool onKeyEnter, uint8_t pin){
+
+    interval= Time;
+    Serial.print(interval);
+    Serial.print(timer);
+
+    if (onKeyEnter) timer=interval; onKeyEnter = false;
+
+    if ( interval- timer <=PRESS_TIME && digitalRead(pin)==1){
+        timer=interval;
+        onKeyEnter=true;
+        return  true;
+    }
+    return false;
+    
+}
+ButtonKeys  ButtonHandling::getButtonValue(){
 
     bool isPressedA= digitalRead(keyA) ==0;
     bool isPressedB = digitalRead(keyB) ==0;
+    bool onKeyEnterA= true;
+    bool onKeyEnterB =true;
 
-    if (isPressedA && interval- timer >=PRESS_TIME) {return  KEY_A_PRESS; timer=interval;}
-    else if (isPressedA && interval- timer >=HOLD_TIME) {return  KEY_A_HOLD; timer=interval;}
-    else if (isPressedB && interval- timer >=PRESS_TIME) {return  KEY_B_PRESS; timer=interval;}
-    else if (isPressedB && interval- timer >=HOLD_TIME) {return  KEY_B_HOLD; timer=interval;}
+    if (isPressedA ) {
+        if (handleButtonPress(onKeyEnterA,keyA)) return KEY_A_PRESS;
+        else if (!handleButtonPress(onKeyEnterA, keyA)) return KEY_A_HOLD;
+    }
+
+    if (isPressedB ) {
+        if (handleButtonPress(onKeyEnterB,keyB)) return KEY_B_PRESS;
+        else if (handleButtonPress(!onKeyEnterB, keyB)) return KEY_B_HOLD;
+    }
 
 }
 
-AnalogKeys ButtonHandling:: getAnalogValues(){
+AnalogKeys ButtonHandling:: getAnalogValue(){
 
   int rawAnalogValue = analogRead(analogKey);
 
@@ -48,4 +69,19 @@ AnalogKeys ButtonHandling:: getAnalogValues(){
     return KEY_ANALOG_DOWN;
   }
 
+}
+
+void ButtonHandling:: onButtonEvent(std::function<void()> callback, ButtonKeys key){
+    if (getButtonValue() == key){
+        Serial.println("button event recieved");
+        callback();
+    }
+
+}
+
+void ButtonHandling:: onAnalogEvent(std::function<void()> callback, AnalogKeys key){
+    if(getAnalogValue() ==key){
+        Serial.println("analog event recieved");
+        callback();
+    }
 }

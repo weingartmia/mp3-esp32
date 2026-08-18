@@ -20,7 +20,11 @@ class DirectoryNavigater {
     public:
         DirectoryNavigater(const String& root);
 
+        void init();
         void openDirectory(const String& dirname);
+        void openNextDirectory();
+        
+
         void setDirectoryParent();
         void exitDirectory();
         void getDirectoryFiles();

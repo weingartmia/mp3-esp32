@@ -20,8 +20,18 @@ void DirectoryNavigater::openDirectory(const String& dirname){
 
     getDirectoryFiles();
 } 
+
+void DirectoryNavigater:: openNextDirectory(){
+    const char* nextFolder= ;
+    openDirectory(currentDirectory.files[selected.index].name().c_str());
+
+}
+
+
 void DirectoryNavigater::exitDirectory(){
+
     currentDirectory.folder.close();
+
     if (currentDirectory.name.c_str() == root.c_str()) return;
     openDirectory(parentDirectory.c_str());
 
