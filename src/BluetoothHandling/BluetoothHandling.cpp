@@ -143,22 +143,22 @@ void BluetoothManager:: buttonCommands(uint8_t key, bool isReleased){// handling
 }
 
 void BluetoothManager:: volumeDown(){
-    _currentVolume -= VOLUME_STEP;
+    currentVolume -= VOLUME_STEP;
 
-    if (_currentVolume <= 0) _currentVolume=0;
+    if (currentVolume <= 0) currentVolume=0;
     setVolume();
 }
 void BluetoothManager::volumeUp(){
-    _currentVolume += VOLUME_STEP;
+    currentVolume += VOLUME_STEP;
 
-    if (_currentVolume >= 127) _currentVolume=127;
+    if (currentVolume >= 127) currentVolume=127;
     setVolume();
 }
 void BluetoothManager::setVolume(){
 
-    atdpSource.set_volume(_currentVolume);
+    atdpSource.set_volume(currentVolume);
     if (status==BluetoothStatus::CONNECTED ) {
-        esp_avrc_ct_send_set_absolute_volume_cmd(0, _currentVolume);
+        esp_avrc_ct_send_set_absolute_volume_cmd(0, currentVolume);
     }
 
 }

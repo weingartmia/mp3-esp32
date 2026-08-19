@@ -13,7 +13,7 @@ enum class PlayerStates{
 
 class PlayerManager{
     public:
-        PlayerManager(AudioProcessor* audioProcessor, Selected* selected, CurrentDirectory* currentDirectory);
+        PlayerManager(AudioProcessor* audioProcessor,DirectoryNavigater* navigater);
         void startAudio(String filePath);
         void play();
         void pause();
@@ -22,10 +22,11 @@ class PlayerManager{
         void previous();
     private:
         AudioProcessor* audioProcessor;
-        DirectoryNavigater* directoryNavigater;
+        DirectoryNavigater* navigater;
         PlayerStates state; 
-        Selected* selected;
-        CurrentDirectory* currentDirectory;
+        // Selected* selected;
+        // CurrentDirectory* currentDirectory;
+        // std::string* parentDirectory;
 };
 
 #endif

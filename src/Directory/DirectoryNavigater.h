@@ -32,12 +32,17 @@ class DirectoryNavigater {
         void increaseSelected();
         void decreaseSelected();
 
+        bool dontHaveAlbum();
+
+        String returnPath();
+
         CurrentDirectory currentDirectory;
         Selected selected;
+        std::string parentDirectory;
 
     private:
         const String& root;
-        std::string parentDirectory;
+        
         
 
 };

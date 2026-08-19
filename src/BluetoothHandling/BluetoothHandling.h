@@ -48,6 +48,7 @@ class BluetoothManager {
 
         static std::vector<BluetoothDevice> avaibleDevices;
         static BluetoothStatus status;
+        uint8_t currentVolume;
 
         void increaseIndex();
         void decreaseIndex();
@@ -57,7 +58,7 @@ class BluetoothManager {
     private:
         static BluetoothManager* instance;
 
-        uint8_t _currentVolume;
+        
 
         BluetoothA2DPSource atdpSource;
         // BluetoothDevice connectedDevice;

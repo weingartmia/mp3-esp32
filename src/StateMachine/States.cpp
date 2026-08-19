@@ -5,7 +5,7 @@
 State::State(): 
 processor(SD_CARD_CS), 
 navigater(ROOT),
-player(&processor, &navigater.selected, &navigater.currentDirectory),
+player(&processor, &navigater),
 bluetooth(&processor, &player),
 buttons(KEY_A_BUTTON,KEY_B_BUTTON,KEY_ANALOG),
 display(0x3c, SCROLLING_OFFSET)
@@ -19,6 +19,8 @@ display(0x3c, SCROLLING_OFFSET)
     state =this;
 }
 
+
+
 void State::setState(State* state){
     this->state= state;
 }
@@ -28,7 +30,7 @@ void ConnectionChangeState::handleConnectionChange(){
    switch(bluetooth.status){
         case BluetoothStatus::DISCONNECTED:
             Serial.println("device is disconnected from ConnectionState()");
-            display.showLoadingBegin();
+            this->state->onDisconnected();
             break;
         case BluetoothStatus::DISCOVERING:
             Serial.println("device is discovering from ConnectionState()");
@@ -50,15 +52,15 @@ void ConnectionChangeState::handleConnectionChange(){
             Serial.println("error while trying to connect from ConnectionState()");
             display.showConnectionFail(bluetooth.avaibleDevices[bluetooth.index]);
             setState(new ErrorState());
+            break;
 
     }
     
 }
 
 void ConnectionChangeState:: passiveConnection(){
-    bool isConnected= bluetooth.status== BluetoothStatus::CONNECTED;
-    display.showConnectionState(isConnected);
-
+    isConnected= bluetooth.status== BluetoothStatus::CONNECTED;
+    Serial.println(isConnected);
 }
 
 void ConnectionState::handleInputs(){
@@ -66,8 +68,10 @@ void ConnectionState::handleInputs(){
     buttons.onButtonEvent([this]() {bluetooth.startDiscovering();},KEY_A_PRESS);
     buttons.onButtonEvent([this]() {bluetooth.stopDiscovering();},KEY_A_HOLD);
 
-    buttons.onButtonEvent([this]() {bluetooth.connect();},KEY_B_PRESS);
-    buttons.onButtonEvent([this]() {bluetooth.disconnect();},KEY_B_HOLD);
+    buttons.onButtonEvent([this]() {setState(new SelectingState());},KEY_B_PRESS);
+
+    buttons.onAnalogEvent([this]() {bluetooth.connect();},KEY_ANALOG_RIGHT);
+    buttons.onAnalogEvent([this]() {bluetooth.disconnect();},KEY_ANALOG_LEFT);
 
     buttons.onAnalogEvent([this]() {bluetooth.decreaseIndex();},KEY_ANALOG_UP);
     buttons.onAnalogEvent([this]() {bluetooth.increaseIndex();},KEY_ANALOG_DOWN);
@@ -86,8 +90,15 @@ void ConnectionState::onConnected(){
     setState(new SelectingState());
 
 }
+void ConnectionState::onDisconnected(){
+    display.showDisconnected();
+
+}
 
 void ErrorState:: onConnected(){
+    passiveConnection();
+}
+void ErrorState:: onDisconnected(){
     passiveConnection();
 }
 void ErrorState::handleInputs(){
@@ -113,6 +124,9 @@ void LoadingState::handleAction(){
 
 void SelectingState::handleInputs(){
 
+    buttons.onButtonEvent([this](){setState(new PlayingState()); player.play();}, KEY_A_PRESS);
+    buttons.onButtonEvent([this](){setState(new ConnectionState());}, KEY_B_PRESS);
+
     buttons.onButtonEvent([this](){bluetooth.volumeUp();}, KEY_A_HOLD);
     buttons.onButtonEvent([this](){bluetooth.volumeDown();}, KEY_B_HOLD);
     
@@ -126,9 +140,74 @@ void SelectingState::handleInputs(){
 void SelectingState ::onConnected(){
     passiveConnection();
 }
+
+void SelectingState:: onDisconnected(){
+    passiveConnection();
+}
+
 void SelectingState::handleAction(){
     handleInputs();
     handleConnectionChange();
-    display.drawDirectory(navigater.currentDirectory, navigater.selected.index);
+    display.drawDirectory(navigater.currentDirectory, navigater.selected.index,isConnected);
 
+}
+
+
+void PlayingState:: handleInputs(){
+
+    buttons.onButtonEvent([this](){player.play();}, KEY_A_PRESS); // or pause
+    buttons.onButtonEvent([this](){player.stop();setState(new SelectingState());}, KEY_B_PRESS);
+
+    buttons.onButtonEvent([this](){bluetooth.volumeUp();}, KEY_A_HOLD);
+    buttons.onButtonEvent([this](){bluetooth.volumeDown();}, KEY_B_HOLD);
+    
+    // buttons.onAnalogEvent([this](){player();}, KEY_ANALOG_DOWN);
+    // buttons.onAnalogEvent([this](){navigater.decrea();}, KEY_ANALOG_UP);
+    buttons.onAnalogEvent([this](){player.next();}, KEY_ANALOG_RIGHT);
+    buttons.onAnalogEvent([this](){player.previous();}, KEY_ANALOG_LEFT);
+
+}
+
+
+void PlayingState::onConnected(){
+    Serial.println("connected");
+}
+void PlayingState::onDisconnected(){
+    Serial.println("connection lost...");
+    setState(new ConnectionState());
+}
+
+String PlayingState:: convertToMinutes(double time){
+
+    int minutes = time/ 60;
+    int seconds = std::fmod(time,60);
+
+    return String(minutes) + ":"+ String(seconds);
+
+
+}
+
+void PlayingState::handleAction(){
+    handleInputs();
+    handleConnectionChange();
+
+    if (navigater.selected.index != _playedSongIndex){
+        _playedSongIndex = navigater.selected.index;
+        _totalTime=processor.getMP3Duration(navigater.currentDirectory.files[_playedSongIndex]);
+    }
+    double currentTime= processor.getCurrentTime();
+
+    String songName = navigater.currentDirectory.files[navigater.selected.index].name(); // current selected song
+    String context; // metadata author, album
+    String current = convertToMinutes(currentTime); //current time in minutes
+    String total = convertToMinutes(_totalTime); // total time   
+    int proggres= currentTime/ _totalTime; //progress time
+    int volume = bluetooth.currentVolume; // current volume
+   
+    if (navigater.dontHaveAlbum()) context = String(navigater.parentDirectory.c_str()); // doesnt have album
+    else String context = String(navigater.parentDirectory.c_str()) + " - " +navigater.currentDirectory.name;
+    
+
+    display.showPlaying(songName,context,current,total,proggres,volume);
+    
 }

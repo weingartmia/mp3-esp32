@@ -11,9 +11,9 @@ DirectoryNavigater::DirectoryNavigater(const String& root): root(root){
 void DirectoryNavigater::openDirectory(const String& dirname){
     File root = SD.open(dirname);
     if (!root || !root.isDirectory()) return;
-
+    
     setDirectoryParent();
-
+    selected.index=0;
     currentDirectory.folder= root;
     currentDirectory.name = dirname;
     currentDirectory.files.clear();
@@ -22,8 +22,7 @@ void DirectoryNavigater::openDirectory(const String& dirname){
 } 
 
 void DirectoryNavigater:: openNextDirectory(){
-    const char* nextFolder= ;
-    openDirectory(currentDirectory.files[selected.index].name().c_str());
+    openDirectory(String(currentDirectory.files[selected.index].name()));
 
 }
 
@@ -70,5 +69,27 @@ void DirectoryNavigater::increaseSelected(){
 void DirectoryNavigater::decreaseSelected(){
     if (selected.index <= 0) selected.index=currentDirectory.files.size();
     else selected.index -=1;
+
+}
+
+String DirectoryNavigater:: returnPath(){
+
+    int currentIndex= selected.index;
+    String parent =String(parentDirectory.c_str());
+    String filePath;
+    if (dontHaveAlbum) 
+        filePath = root+ currentDirectory.name + currentDirectory.files[currentIndex].name();
+    else
+        filePath = root + parent  + currentDirectory.name + currentDirectory.files[currentIndex].name();// root + autor directory+ album directory+ current selected song
+    Serial.println(filePath);
+    return filePath;
+}
+
+bool DirectoryNavigater:: dontHaveAlbum(){
+    if (String(parentDirectory.c_str()) == root){
+        Serial.println("parent diretory of selected file is root - isnt in album");
+        return true;
+    }
+    return false;
 
 }

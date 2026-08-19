@@ -18,11 +18,14 @@ class OledDisplay{
         void showConnectionSucces(BluetoothDevice device);
         void showConnectionFail(BluetoothDevice device);
 
+        void showDisconnected();
         void showDisconnecting();
         void showErrorScreen();
         void showConnectionState(bool isConnected);
 
-        void drawDirectory(CurrentDirectory dir, int index);
+        void drawDirectory(CurrentDirectory dir, int index,bool isConnected);
+        void showPlaying(String songName, String context, String currentTime, String totalTime, int progress, int volume);
+        void showVolume( int volume);
 
 
         

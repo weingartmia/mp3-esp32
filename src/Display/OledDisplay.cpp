@@ -118,16 +118,55 @@ void OledDisplay:: showConnectionState(bool isConnected){
     display.display();
 }
 
-void OledDisplay::drawDirectory(CurrentDirectory dir, int index){
-
+void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnected){
+    display.clear();
+    
     for(int i=0; i< dir.files.size(); i++){
         if (i== index){
-            display.drawString(3,(6*i)+ (scrollingOfset* index),"  <|" + dir.files[i].name().c_str());
+            display.drawString(3,(6*i)+ (scrollingOfset* index),"  <|" + String(dir.files[i].name()));
         }
         else{
             
-            display.drawString(3,(6*i) + + (scrollingOfset* index),"<"+dir.files[i].name().c_str());
+            display.drawString(3,(6*i) + + (scrollingOfset* index)," < "+String(dir.files[i].name()));
         }
     }
+    showConnectionState(isConnected);
+    
+
+}
+
+void OledDisplay::showDisconnected(){
+    display.clear();
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setFont(ArialMT_Plain_24);
+    display.drawString(10,0,"device is disconnected");
+    
+    buttonOption();
+    display.display();
+
+}
+
+void OledDisplay::showPlaying(String songName, String context, String currentTime, String totalTime, int progress,int volume){
+
+    display.clear();
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setFont(ArialMT_Plain_16);
+    display.drawString(10,10, songName);
+
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(10,30, context);
+
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.drawString(0,50, currentTime +" / " + totalTime);
+
+    display.drawProgressBar(0,50,128,10,progress);
+    showVolume(volume);
+}
+
+void OledDisplay::showVolume(int volume){
+
+    display.drawProgressBar(20,5,60,5,volume);
+    display.display();
+
 
 }

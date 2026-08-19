@@ -2,7 +2,10 @@
 #include "PlayerManager.h"
 
 
-PlayerManager::PlayerManager(AudioProcessor* audioProcessor, Selected* selected, CurrentDirectory* currentDirectory): audioProcessor(audioProcessor), selected(selected), currentDirectory(currentDirectory)
+
+PlayerManager::PlayerManager(AudioProcessor* audioProcessor, DirectoryNavigater* navigater ): 
+audioProcessor(audioProcessor), 
+navigater(navigater)
 {
     state= PlayerStates::STOPPED;
 }
@@ -20,15 +23,31 @@ void PlayerManager:: startAudio(String filePath){
 
 }
 void PlayerManager::play(){
+    if (state == PlayerStates::PLAYING) {
+        audioProcessor->pauseCurrentFile();
+        pause();
+        return;
+    }
 
-    int currentIndex= selected->index;
-    String filePath =currentDirectory->files[currentIndex].name();
+    audioProcessor->playCurrentFile();
+    String filePath = navigater->returnPath();
     startAudio(filePath);
 
+    if(audioProcessor->songHasEnded()){
+        Serial.println("song has ended");
+        next();
+    }
 
 }
 void PlayerManager::pause(){
+    if (state == PlayerStates::PAUSED){ 
+        audioProcessor->playCurrentFile();
+        play();
+        return;
+    };
+
     state=PlayerStates::PAUSED;
+    audioProcessor->pauseCurrentFile();
     Serial.println("audio is paused");
     
 }
@@ -39,15 +58,17 @@ void PlayerManager::stop(){
 
 }
 void PlayerManager::next(){
-    int currentIndex= selected->index +1;
-    String filePath =currentDirectory->files[currentIndex].name();
+    navigater->increaseSelected();
+    int currentIndex = navigater->selected.index;
+    String filePath =navigater->currentDirectory.files[currentIndex].name();
     startAudio(filePath);
 
 } 
 
 void PlayerManager::previous(){
-    int currentIndex= selected->index -1;
-    String filePath =currentDirectory->files[currentIndex].name();
+    navigater->decreaseSelected();
+    int currentIndex = navigater->selected.index;
+    String filePath =navigater->currentDirectory.files[currentIndex].name();
     startAudio(filePath);
 
 }
