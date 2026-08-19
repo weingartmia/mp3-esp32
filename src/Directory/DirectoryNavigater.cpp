@@ -77,7 +77,7 @@ String DirectoryNavigater:: returnPath(){
     int currentIndex= selected.index;
     String parent =String(parentDirectory.c_str());
     String filePath;
-    if (dontHaveAlbum) 
+    if (dontHaveAlbum()) 
         filePath = root+ currentDirectory.name + currentDirectory.files[currentIndex].name();
     else
         filePath = root + parent  + currentDirectory.name + currentDirectory.files[currentIndex].name();// root + autor directory+ album directory+ current selected song

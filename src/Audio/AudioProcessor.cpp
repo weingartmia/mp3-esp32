@@ -100,7 +100,7 @@ double AudioProcessor:: getMP3Duration(File& file){
 
         
         if (layer != 3); 
-            return;
+            return 0;
 
         if (bitrateIndex == 0 || bitrateIndex == 15 ||sampleRateIndex == 3)
             continue;
@@ -115,7 +115,7 @@ double AudioProcessor:: getMP3Duration(File& file){
         };
 
         if (version ==  1) 
-            return; // mpeg-1 only
+            return 0; // mpeg-1 only
 
         int bitrate =bitrateTableMPEG1[bitrateIndex] * 1000;
         sampleRate =sampleRateTable[sampleRateIndex];

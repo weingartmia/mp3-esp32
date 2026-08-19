@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BLUETOOTHANDLING_H
 #define BLUETOOTHHANDLING_H
 

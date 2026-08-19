@@ -1,3 +1,7 @@
+
+#pragma once
+#ifndef DIRECTORYNAVIGATER_H
+#define DIRECTORYNAVIGATER_H
 #include <Arduino.h>
 #include <SD.h>
 #include <vector>
@@ -46,3 +50,4 @@ class DirectoryNavigater {
         
 
 };
+#endif

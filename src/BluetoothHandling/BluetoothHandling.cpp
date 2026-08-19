@@ -1,13 +1,15 @@
 #include "BluetoothHandling.h"
 #include "utils.h"
 
+BluetoothManager* BluetoothManager::instance = nullptr;
+std::vector<BluetoothDevice> BluetoothManager::avaibleDevices ={};
 
 BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player): 
     audioProcessor(audioProcessor), 
     player(player)
+    
     // connectedDevice{},
     // connectingDevice{}
-
 {
     instance = this;
 }
@@ -28,11 +30,16 @@ void BluetoothManager::init(const String& localName){
 bool BluetoothManager ::searchSSID(const char* ssid, esp_bd_addr_t address, int rrsi){
 
     Serial.printf("New device found: %s, RSSI: %d\n", ssid, rrsi);
+        if (!instance || ssid == nullptr || strlen(ssid) == 0) {
+        return false;
+    }
     BluetoothDevice device;
     device.name= ssid;
     device.connectionQuality = rrsi;
     memcpy(device.address, address, ESP_BD_ADDR_LEN);
+
     avaibleDevices.push_back(device);
+    return true;
 
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #ifndef CONTEXT_H
 #define CONTEXT_H
+#include "States.h"
 
 class Context{
 
@@ -10,9 +11,7 @@ class Context{
     public:
         void init();
         void currentStateAction();
-        void setState(State* state);
-
-
+        
 };
 
 #endif

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BUTTONHANDLING_H
 #define BUTTONHANDLING_H
 
