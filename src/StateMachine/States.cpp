@@ -9,9 +9,7 @@ player(&processor, &navigater),
 bluetooth(&processor, &player),
 buttons(KEY_A_BUTTON,KEY_B_BUTTON,KEY_ANALOG),
 display(0x3c, SCROLLING_OFFSET)
-
 {   
-
     processor.init();
     bluetooth.init("mp3-esp32");
     buttons.init();

@@ -17,7 +17,8 @@ enum ButtonKeys{
     KEY_A_PRESS,
     KEY_A_HOLD,
     KEY_B_PRESS,
-    KEY_B_HOLD
+    KEY_B_HOLD,
+    NO_KEY
 };
 
 

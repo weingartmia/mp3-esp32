@@ -48,6 +48,7 @@ ButtonKeys  ButtonHandling::getButtonValue(){
         if (handleButtonPress(onKeyEnterB,keyB)) return KEY_B_PRESS;
         else if (handleButtonPress(!onKeyEnterB, keyB)) return KEY_B_HOLD;
     }
+    return NO_KEY;
 
 }
 

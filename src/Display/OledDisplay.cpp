@@ -63,7 +63,9 @@ void OledDisplay::showConnecting(BluetoothDevice device){
 
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
+    
     display.setFont(ArialMT_Plain_24);
+    display.drawString(10,2,"conecting..");
     display.drawString(10,10,device.name);
 
     display.setFont(ArialMT_Plain_16);
