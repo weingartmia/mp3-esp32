@@ -2,6 +2,15 @@
 
 AudioProcessor::AudioProcessor(const uint8_t _csSDPin): _csSDPin(_csSDPin), decoder(&_currentFile,&mp3){};
 
+void printMetaData(MetaDataType type, const char* str, int len){
+    AudioProcessor * proc;
+    
+    Serial.print("==> ");
+    Serial.print(toStr(type));
+    proc->metadata = toStr(type);
+    Serial.print(": ");
+    Serial.println(str);
+}
 
 void AudioProcessor::init(){
     
@@ -9,6 +18,8 @@ void AudioProcessor::init(){
     Serial.println("SD CARD FAILED, OR NOT PRESENT!");
     while (1); 
   }
+  out.setCallback(printMetaData);
+  out.begin();
 }
 
 bool AudioProcessor::openFile(const String& filepath){
@@ -148,3 +159,5 @@ bool AudioProcessor::songHasEnded(){
     return false;
     
 }
+
+

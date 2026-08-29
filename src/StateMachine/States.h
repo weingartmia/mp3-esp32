@@ -26,11 +26,11 @@ class State{
         virtual void onDisconnected() = 0;
 
 
-        AudioProcessor processor;
+        // AudioProcessor processor;
         ButtonHandling buttons;
-        DirectoryNavigater navigater;
+        // DirectoryNavigater navigater;
         BluetoothManager bluetooth;
-        PlayerManager player;
+        // PlayerManager player;
         OledDisplay display;
         virtual ~State()=default;
 
@@ -83,30 +83,30 @@ class LoadingState:public State{
 
 };
 
-class SelectingState: public ConnectionChangeState{
-    public:
+// class SelectingState: public ConnectionChangeState{
+//     public:
 
-        void handleInputs() override;
-        void handleAction() override;
-        void onConnected() override;
-        void onDisconnected() override;
-        ~SelectingState() override= default;
+//         void handleInputs() override;
+//         void handleAction() override;
+//         void onConnected() override;
+//         void onDisconnected() override;
+//         ~SelectingState() override= default;
 
 
-};
+// };
 
-class PlayingState: public ConnectionChangeState{
-    private:
-        int _playedSongIndex;
-        double _totalTime;
+// class PlayingState: public ConnectionChangeState{
+//     private:
+//         int _playedSongIndex;
+//         double _totalTime;
 
-        String convertToMinutes(double time);
+//         String convertToMinutes(double time);
 
-    public:
-        void handleInputs() override;
-        void handleAction() override;
-        void onConnected() override;
-        void onDisconnected() override;
-        ~PlayingState() override= default;
+//     public:
+//         void handleInputs() override;
+//         void handleAction() override;
+//         void onConnected() override;
+//         void onDisconnected() override;
+//         ~PlayingState() override= default;
 
-};
+// };

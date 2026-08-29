@@ -6,6 +6,7 @@
 
 #include <AudioTools.h>
 #include "AudioTools/AudioCodecs/CodecMP3Helix.h"
+#include "AudioTools/CoreAudio/AudioMetaData.h"
 #include <SD.h>
 
 class AudioProcessor{
@@ -17,22 +18,29 @@ class AudioProcessor{
         void pauseCurrentFile();
         void playCurrentFile();
         double getCurrentTime();
+
+        // void printMetaData(MetaDataType type, const char* str, int len);
         
         bool songHasEnded();
         double getMP3Duration(File& file);
 
         int32_t readAudio(uint8_t* buffer, int32_t len);
+        std::string metadata;
         
 
     private:
 
-        
-
         const uint8_t _csSDPin;
         File _currentFile;
+
         MP3DecoderHelix mp3;
         EncodedAudioStream decoder;
+        MetaDataOutput out;
+        MetaDataID3 i3d;
+
+
         uint64_t playedFrames = 0;
+
         bool _paused =false;
 
         int sampleRate = 44100;

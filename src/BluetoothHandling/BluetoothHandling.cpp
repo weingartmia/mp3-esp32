@@ -4,26 +4,31 @@
 BluetoothManager* BluetoothManager::instance = nullptr;
 std::vector<BluetoothDevice> BluetoothManager::avaibleDevices ={};
 
-BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player): 
-    audioProcessor(audioProcessor), 
-    player(player)
+// BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player): 
+//     audioProcessor(audioProcessor), 
+//     player(player)
     
-    // connectedDevice{},
-    // connectingDevice{}
+//     // connectedDevice{},
+//     // connectingDevice{}
+// {
+//     instance = this;
+// }
+BluetoothManager::BluetoothManager()
 {
-    instance = this;
+    instance=this;
 }
 BluetoothStatus BluetoothManager::status= BluetoothStatus::DISCONNECTED;
 // BluetoothManager* BluetoothManager :: instance= nullptr;
 
 void BluetoothManager::init(const String& localName){
-
+    
     atdpSource.set_local_name(localName.c_str());
     atdpSource.set_on_connection_state_changed(handleConnectionChanged);
     atdpSource.set_ssid_callback(searchSSID);
     atdpSource.set_data_callback(audioDataCallback);
     atdpSource.set_discovery_mode_callback(handleDiscoveryStateChanged);
     atdpSource.set_avrc_passthru_command_callback(buttonCommands);
+    Serial.println("initiliazed bluetooth from BluetoothManager init");
 
     
 }
@@ -36,6 +41,7 @@ bool BluetoothManager ::searchSSID(const char* ssid, esp_bd_addr_t address, int 
     BluetoothDevice device;
     device.name= ssid;
     device.connectionQuality = rrsi;
+    Serial.print(rrsi);
     memcpy(device.address, address, ESP_BD_ADDR_LEN);
 
     avaibleDevices.push_back(device);

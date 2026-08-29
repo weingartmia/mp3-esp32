@@ -32,6 +32,9 @@ class ButtonHandling{
         const uint8_t keyB;
         const uint8_t analogKey;
 
+        bool onKeyEnterA= true;
+        bool onKeyEnterB =true;
+
         void init();
         AnalogKeys getAnalogValue();
         ButtonKeys getButtonValue();
@@ -46,7 +49,7 @@ class ButtonHandling{
         int timer;
         int interval;
         unsigned long Time;
-        bool handleButtonPress(bool onKeyEnter, uint8_t pin);
+        bool handleButtonPress(bool  * onKeyEnter, uint8_t pin);
         
 
 

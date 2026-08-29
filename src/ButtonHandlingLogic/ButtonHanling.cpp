@@ -9,44 +9,54 @@ keyA(keyA),keyB(keyB),analogKey(analogKey),Time(millis()),interval(Time),timer(T
 }
 
 void ButtonHandling::init(){
+
     pinMode(keyA,INPUT);
     pinMode(keyB,INPUT);
     pinMode(analogKey,INPUT);
+    Serial.println("initiliazed buttons from ButtonHandling init");
     
 }
 
 
-bool ButtonHandling:: handleButtonPress(bool onKeyEnter, uint8_t pin){
+bool ButtonHandling:: handleButtonPress(bool *onKeyEnter, uint8_t pin){
 
     interval= Time;
-    Serial.print(interval);
-    Serial.print(timer);
+    Serial.println(interval);
+    Serial.println(timer);
+    Serial.println(interval-timer);
 
-    if (onKeyEnter) timer=interval; onKeyEnter = false;
+    if (&onKeyEnter) timer=interval; *onKeyEnter = false;Serial.println("resseted timer");
 
     if ( interval- timer <=PRESS_TIME && digitalRead(pin)==1){
-        timer=interval;
-        onKeyEnter=true;
-        return  true;
+      Serial.println("short press");
+      *onKeyEnter=true;
+      return  true;
     }
-    return false;
+   else if( interval- timer >PRESS_TIME && digitalRead(pin)==1) {
+      Serial.println("long hold");
+      *onKeyEnter=true; 
+      return false;
+  }
     
 }
 ButtonKeys  ButtonHandling::getButtonValue(){
 
     bool isPressedA= digitalRead(keyA) ==0;
     bool isPressedB = digitalRead(keyB) ==0;
-    bool onKeyEnterA= true;
-    bool onKeyEnterB =true;
+    // Serial.println(isPressedA);
+    // Serial.println(isPressedB);
+
 
     if (isPressedA ) {
-        if (handleButtonPress(onKeyEnterA,keyA)) return KEY_A_PRESS;
-        else if (!handleButtonPress(onKeyEnterA, keyA)) return KEY_A_HOLD;
+        Serial.println("Button A pressed");
+        if (handleButtonPress(&onKeyEnterA,keyA)) return KEY_A_PRESS;
+        else if (!handleButtonPress(&onKeyEnterA, keyA))  return KEY_A_HOLD;
     }
 
     if (isPressedB ) {
-        if (handleButtonPress(onKeyEnterB,keyB)) return KEY_B_PRESS;
-        else if (handleButtonPress(!onKeyEnterB, keyB)) return KEY_B_HOLD;
+        Serial.println("Button B pressed");
+        if (handleButtonPress(&onKeyEnterB,keyB)) return KEY_B_PRESS;
+        else if (!handleButtonPress(&onKeyEnterB, keyB)) return KEY_B_HOLD;
     }
     return NO_KEY;
 

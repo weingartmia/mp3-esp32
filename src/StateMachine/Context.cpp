@@ -1,10 +1,13 @@
 #include "Context.h"
 
 void Context::init(){
-    this->state->setState(new ConnectionState());
+
+    this->state =new ConnectionState();
+    Serial.println("initiliazed context from Context init()");
 }
 
 void Context::currentStateAction(){
+    // Serial.println("----context handling action currrentStateAction()");
     this->state->handleAction();
 }
 

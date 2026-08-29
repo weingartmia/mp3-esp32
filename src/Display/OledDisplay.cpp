@@ -9,6 +9,7 @@ scrollingOfset(scrollingOfset)
 
 void OledDisplay::init(){
     if(!display.init()) Serial.println("failed to initiliaze oled");
+    Serial.println("iniliazed oled  from OledDisplay init");
 
 
     display.flipScreenVertically();
@@ -140,7 +141,7 @@ void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnecte
 void OledDisplay::showDisconnected(){
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
-    display.setFont(ArialMT_Plain_24);
+    display.setFont(ArialMT_Plain_16);
     display.drawString(10,0,"device is disconnected");
     
     buttonOption();
