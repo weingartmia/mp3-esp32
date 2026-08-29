@@ -21,31 +21,39 @@ BluetoothStatus BluetoothManager::status= BluetoothStatus::DISCONNECTED;
 // BluetoothManager* BluetoothManager :: instance= nullptr;
 
 void BluetoothManager::init(const String& localName){
-    
+
+
+
     atdpSource.set_local_name(localName.c_str());
     atdpSource.set_on_connection_state_changed(handleConnectionChanged);
     atdpSource.set_ssid_callback(searchSSID);
     atdpSource.set_data_callback(audioDataCallback);
     atdpSource.set_discovery_mode_callback(handleDiscoveryStateChanged);
-    atdpSource.set_avrc_passthru_command_callback(buttonCommands);
+    
     Serial.println("initiliazed bluetooth from BluetoothManager init");
 
     
 }
 bool BluetoothManager ::searchSSID(const char* ssid, esp_bd_addr_t address, int rrsi){
 
+
     Serial.printf("New device found: %s, RSSI: %d\n", ssid, rrsi);
         if (!instance || ssid == nullptr || strlen(ssid) == 0) {
         return false;
     }
+   for (const auto& dev : avaibleDevices) {
+        if (memcmp(dev.address, address, ESP_BD_ADDR_LEN) == 0) {
+            return false; 
+        }
+    }
     BluetoothDevice device;
     device.name= ssid;
     device.connectionQuality = rrsi;
-    Serial.print(rrsi);
+    
     memcpy(device.address, address, ESP_BD_ADDR_LEN);
 
     avaibleDevices.push_back(device);
-    return true;
+    return false;
 
 }
 
@@ -53,9 +61,12 @@ void BluetoothManager ::startDiscovering(){
 
     if (status==BluetoothStatus::CONNECTED|| status==BluetoothStatus::CONNECTING|| status==BluetoothStatus::DISCOVERING ) 
         return;
+    status= BluetoothStatus::DISCOVERING;
     Serial.println("Started discovering avaible devices...");
     avaibleDevices.clear();
     atdpSource.start("Mp3 esp32");
+    atdpSource.set_avrc_passthru_command_callback(buttonCommands);
+
 
 }
 
@@ -67,6 +78,7 @@ void BluetoothManager::stopDiscovering(){
     if (esp_bt_gap_cancel_discovery() != ESP_OK) {
         Serial.println("Failed to cancel discovery");
     }
+   
 }
 void BluetoothManager:: handleConnectionChanged(esp_a2d_connection_state_t state, void *ptr){
   
@@ -107,7 +119,7 @@ void BluetoothManager::handleDiscoveryStateChanged(esp_bt_gap_discovery_state_t 
 bool BluetoothManager::connect(){// connect to selected device
 
     if (status==BluetoothStatus::DISCOVERING) stopDiscovering();
-    Serial.print("connecting device with index");
+    Serial.println("connecting device with index");
     Serial.println(index);
 
     if (atdpSource.connect_to(const_cast<uint8_t*>(avaibleDevices[index].address))){
@@ -124,6 +136,8 @@ void BluetoothManager::disconnect(){// disconnect from current device
 }
 
 int32_t BluetoothManager::audioDataCallback(uint8_t *data, int32_t bytes){// callback from a2dp source to process more audio
+
+    if (instance->audioProcessor ==nullptr) return 0;
 
     if (!data || bytes<=0) {
         Serial.println("data or bytes arent valid");
@@ -177,6 +191,7 @@ void BluetoothManager::setVolume(){
 }
 
 void BluetoothManager::increaseIndex(){
+    if (avaibleDevices.size() ==0) return;
     if (index == avaibleDevices.size() -1 ) index=0;
     else index +=1;
 

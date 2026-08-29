@@ -30,11 +30,12 @@ void ConnectionChangeState::handleConnectionChange(){
 
    switch(bluetooth.status){
         case BluetoothStatus::DISCONNECTED:
-            Serial.println("device is disconnected from ConnectionState()");
+            // Serial.println("device is disconnected from ConnectionState()");
             this->state->onDisconnected();
             break;
         case BluetoothStatus::DISCOVERING:
             Serial.println("device is discovering from ConnectionState()");
+            Serial.println(bluetooth.avaibleDevices.size());
             display.showAvaibleDevices(bluetooth.avaibleDevices,bluetooth.index);
             break;
         case BluetoothStatus::CONNECTING:
@@ -46,7 +47,7 @@ void ConnectionChangeState::handleConnectionChange(){
             this->state->onConnected();
             break;
         case BluetoothStatus::DISCONNECTING:
-            Serial.println("device is disconnected from ConnectionState()");
+            // Serial.println("device is disconnected from ConnectionState()");
             display.showDisconnecting();
             break;
         case BluetoothStatus::ERRORCONNECTING:
@@ -80,7 +81,7 @@ void ConnectionState::handleInputs(){
 }
 
 void ConnectionState::handleAction(){
-    Serial.println("in connection state --- handling action");
+    // Serial.println("in connection state --- handling action");
     handleInputs();
     handleConnectionChange();
 
@@ -88,7 +89,7 @@ void ConnectionState::handleAction(){
 void ConnectionState::onConnected(){
     
     display.showConnectionSucces(bluetooth.avaibleDevices[bluetooth.index]);
-    delay(1000);
+    // delay(1000);
     // setState(new SelectingState());
 
 }

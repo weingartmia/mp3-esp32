@@ -24,15 +24,17 @@ bool ButtonHandling:: handleButtonPress(bool *onKeyEnter, uint8_t pin){
     Serial.println(interval);
     Serial.println(timer);
     Serial.println(interval-timer);
+    Serial.println(digitalRead(pin));
+  
 
-    if (&onKeyEnter) timer=interval; *onKeyEnter = false;Serial.println("resseted timer");
+    if (onKeyEnter) timer=interval; *onKeyEnter = false;Serial.println("resseted timer");
 
-    if ( interval- timer <=PRESS_TIME && digitalRead(pin)==1){
+    if ( interval- timer <=PRESS_TIME && digitalRead(pin)==0){
       Serial.println("short press");
       *onKeyEnter=true;
       return  true;
     }
-   else if( interval- timer >PRESS_TIME && digitalRead(pin)==1) {
+   else if( interval- timer >PRESS_TIME && digitalRead(pin)==0) {
       Serial.println("long hold");
       *onKeyEnter=true; 
       return false;

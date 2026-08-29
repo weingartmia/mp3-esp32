@@ -21,8 +21,8 @@ void OledDisplay::setDisplay(){
 
 void OledDisplay:: buttonOption(){
     display.setFont(ArialMT_Plain_10);
-    display.drawString(30,40,"press A to connect");
-    display.drawString(30,51,"press B to directory");
+    display.drawString(50,40,"press A to connect");
+    display.drawString(50,51,"press B to directory");
 
 }
 
@@ -42,18 +42,24 @@ void OledDisplay:: showLoadingBegin(){
 void OledDisplay::showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices,int index ){
 
     display.clear();
-    display.setTextAlignment(TEXT_ALIGN_RIGHT);
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(3,3,"Avaible devices:");
-
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(50,0,"Avaible devices:");
+    display.drawLine(0,11,128,11);
     display.setFont(ArialMT_Plain_10);
 
+    if (avaibleDevices.size()==0) display.drawString(50,15,"...");
+    int y =15;
+
     for(int i=0; i< avaibleDevices.size(); i++){
+
+        
         if (i== index){
-            display.drawString(3,(6*i)+ (scrollingOfset* index),"<" + avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
+            display.drawString(45,(y + 10*i)+ (scrollingOfset * i),">  " + avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
         }
         else{
-            display.drawString(3,(6*i) + + (scrollingOfset* index),avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
+            
+            display.drawString(35,(y + 10*i) + (scrollingOfset * i),avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
         }
     }
     display.display();
@@ -65,11 +71,11 @@ void OledDisplay::showConnecting(BluetoothDevice device){
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     
-    display.setFont(ArialMT_Plain_24);
+    display.setFont(ArialMT_Plain_10);
     display.drawString(10,2,"conecting..");
     display.drawString(10,10,device.name);
 
-    display.setFont(ArialMT_Plain_16);
+    display.setFont(ArialMT_Plain_10);
     display.drawString(10,25,device.connectionQuality + "");
     display.display();
 }
@@ -77,9 +83,9 @@ void OledDisplay::showConnecting(BluetoothDevice device){
 void OledDisplay:: showConnectionSucces(BluetoothDevice device){
 
     display.clear();
-    display.setTextAlignment(TEXT_ALIGN_CENTER);
-    display.setFont(ArialMT_Plain_24);
-    display.drawString(10,10,"connected to"+device.name);
+    display.setTextAlignment(TEXT_ALIGN_RIGHT);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(0,10,"connected to"+device.name);
 
     display.display();
 
@@ -101,7 +107,7 @@ void OledDisplay:: showConnectionFail(BluetoothDevice device){
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.setFont(ArialMT_Plain_24);
-    display.drawString(10,00,"ERROR failed connection  to"+device.name);
+    display.drawString(10,00,"ERROR failed connection to "+device.name);
 
     display.display();
 }
@@ -126,11 +132,11 @@ void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnecte
     
     for(int i=0; i< dir.files.size(); i++){
         if (i== index){
-            display.drawString(3,(6*i)+ (scrollingOfset* index),"  <|" + String(dir.files[i].name()));
+            display.drawString(40,(10*i + 15)+ (scrollingOfset* index),"  |>" + String(dir.files[i].name()));
         }
         else{
             
-            display.drawString(3,(6*i) + + (scrollingOfset* index)," < "+String(dir.files[i].name()));
+            display.drawString(45,(10*i + 15) + + (scrollingOfset* index)," > "+String(dir.files[i].name()));
         }
     }
     showConnectionState(isConnected);
@@ -142,7 +148,7 @@ void OledDisplay::showDisconnected(){
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.setFont(ArialMT_Plain_16);
-    display.drawString(10,0,"device is disconnected");
+    display.drawString(15,0,"device is disconnected");
     
     buttonOption();
     display.display();
