@@ -10,7 +10,7 @@
 #define ADC_BIT 1024          //other MCU, revise according to actual situation
 #endif
 
-#define PRESS_TIME 200 //  miliiseconds press is considered long hold
+#define PRESS_TIME 400 //  miliiseconds press is considered long hold
 #define ROOT "/"
 
 #define SD_CARD_CS D3 // sd card pin

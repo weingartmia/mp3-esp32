@@ -21,9 +21,6 @@ enum ButtonKeys{
     NO_KEY
 };
 
-
-
-
 class ButtonHandling{
     public:
         ButtonHandling(const uint8_t keyA,const uint8_t keyB, const uint8_t analogKey);
@@ -41,18 +38,14 @@ class ButtonHandling{
 
         void onButtonEvent(std::function<void()> callback, ButtonKeys key);
         void onAnalogEvent(std::function<void()> callback, AnalogKeys key);
-
-        
-
-        
+ 
     private:
         int timer;
         int interval;
         unsigned long Time;
-        bool handleButtonPress(bool  * onKeyEnter, uint8_t pin);
-        
-
-
+        int handleButtonPress(bool& onKeyEnter, uint8_t pin);
+        void setOnkeyEnter(bool& onKeyEnter);
+    
 
 };
 

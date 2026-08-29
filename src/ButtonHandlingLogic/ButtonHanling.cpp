@@ -18,48 +18,58 @@ void ButtonHandling::init(){
 }
 
 
-bool ButtonHandling:: handleButtonPress(bool *onKeyEnter, uint8_t pin){
-
-    interval= Time;
-    Serial.println(interval);
-    Serial.println(timer);
-    Serial.println(interval-timer);
-    Serial.println(digitalRead(pin));
-  
-
-    if (onKeyEnter) timer=interval; *onKeyEnter = false;Serial.println("resseted timer");
-
-    if ( interval- timer <=PRESS_TIME && digitalRead(pin)==0){
-      Serial.println("short press");
-      *onKeyEnter=true;
-      return  true;
+void ButtonHandling:: setOnkeyEnter(bool& onKeyEnter){
+  if (onKeyEnter) {
+    timer=interval; 
+    onKeyEnter = false;
+    Serial.println("resseted timer");
     }
-   else if( interval- timer >PRESS_TIME && digitalRead(pin)==0) {
+}
+
+int  ButtonHandling:: handleButtonPress(bool& onKeyEnter, uint8_t pin){
+
+    Time= millis();
+    interval= Time;
+    // Serial.println(interval);
+    // Serial.println(timer);
+    if ( interval- timer <=PRESS_TIME && digitalRead(pin)==1){
+      Serial.println("short press");
+      onKeyEnter=true;
+      return  2;
+    }
+   else if( interval- timer >PRESS_TIME && digitalRead(pin)==1) {
       Serial.println("long hold");
-      *onKeyEnter=true; 
-      return false;
+      onKeyEnter=true; 
+      return 1;
   }
+  else  return 0;
+ 
     
 }
-ButtonKeys  ButtonHandling::getButtonValue(){
+ButtonKeys ButtonHandling::getButtonValue(){
 
     bool isPressedA= digitalRead(keyA) ==0;
     bool isPressedB = digitalRead(keyB) ==0;
     // Serial.println(isPressedA);
-    // Serial.println(isPressedB);
-
 
     if (isPressedA ) {
         Serial.println("Button A pressed");
-        if (handleButtonPress(&onKeyEnterA,keyA)) return KEY_A_PRESS;
-        else if (!handleButtonPress(&onKeyEnterA, keyA))  return KEY_A_HOLD;
+        setOnkeyEnter(onKeyEnterA);     
     }
+    if (!onKeyEnterA){
 
-    if (isPressedB ) {
-        Serial.println("Button B pressed");
-        if (handleButtonPress(&onKeyEnterB,keyB)) return KEY_B_PRESS;
-        else if (!handleButtonPress(&onKeyEnterB, keyB)) return KEY_B_HOLD;
+      if (handleButtonPress(onKeyEnterA,keyA)==2) return KEY_A_PRESS;
+      else if (handleButtonPress(onKeyEnterA, keyA) ==1)  return KEY_A_HOLD;
     }
+    if (isPressedB ) {
+        // Serial.println("Button B pressed");
+        setOnkeyEnter(onKeyEnterB);
+    }
+    if (!onKeyEnterB){
+      if (handleButtonPress(onKeyEnterB,keyB)==2) return KEY_B_PRESS;
+      else if (handleButtonPress(onKeyEnterB, keyB) ==1) return KEY_B_HOLD;
+    }
+    
     return NO_KEY;
 
 }
