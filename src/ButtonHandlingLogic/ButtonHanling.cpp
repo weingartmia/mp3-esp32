@@ -20,7 +20,7 @@ void ButtonHandling::init(){
 
 void ButtonHandling:: setOnkeyEnter(bool& onKeyEnter){
   if (onKeyEnter) {
-    timer=interval; 
+    timer=interval;
     onKeyEnter = false;
     Serial.println("resseted timer");
     }
@@ -28,16 +28,16 @@ void ButtonHandling:: setOnkeyEnter(bool& onKeyEnter){
 
 int  ButtonHandling:: handleButtonPress(bool& onKeyEnter, uint8_t pin){
 
-    Time= millis();
-    interval= Time;
-    // Serial.println(interval);
-    // Serial.println(timer);
+  
+    
     if ( interval- timer <=PRESS_TIME && digitalRead(pin)==1){
+
       Serial.println("short press");
       onKeyEnter=true;
       return  2;
     }
    else if( interval- timer >PRESS_TIME && digitalRead(pin)==1) {
+ 
       Serial.println("long hold");
       onKeyEnter=true; 
       return 1;
@@ -48,9 +48,12 @@ int  ButtonHandling:: handleButtonPress(bool& onKeyEnter, uint8_t pin){
 }
 ButtonKeys ButtonHandling::getButtonValue(){
 
+    Time= millis();
+    interval= Time;
+
     bool isPressedA= digitalRead(keyA) ==0;
     bool isPressedB = digitalRead(keyB) ==0;
-    // Serial.println(isPressedA);
+  
 
     if (isPressedA ) {
         Serial.println("Button A pressed");

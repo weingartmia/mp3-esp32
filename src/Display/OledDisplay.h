@@ -27,6 +27,8 @@ class OledDisplay{
         void showPlaying(String songName, String context, String currentTime, String totalTime, int progress, int volume);
         void showVolume( int volume);
 
+        
+
 
         
     private:
@@ -34,6 +36,8 @@ class OledDisplay{
         const uint8_t adress;
         int scrollingOfset;
         void buttonOption();
-
+        void slideText(std::string text,int y,int start_x, int end_x,int char_size);
+        void drawText(std::string text,int y,int start_x, int end_x,int char_size, int thresholdLen);
+        int slideOffset = 1;
 };
 #endif

@@ -67,8 +67,8 @@ void ConnectionChangeState:: passiveConnection(){
 
 void ConnectionState::handleInputs(){
 
-    buttons.onButtonEvent([this]() {bluetooth.startDiscovering();},KEY_A_HOLD);
-    // buttons.onButtonEvent([this]() {bluetooth.stopDiscovering();},KEY_A_HOLD);
+    buttons.onButtonEvent([this]() {bluetooth.startDiscovering();},KEY_A_PRESS);
+    buttons.onButtonEvent([this]() {bluetooth.stopDiscovering();},KEY_A_HOLD);
 
     // buttons.onButtonEvent([this]() {setState(new SelectingState());},KEY_B_PRESS);
 

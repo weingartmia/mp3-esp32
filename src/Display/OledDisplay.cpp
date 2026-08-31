@@ -49,17 +49,22 @@ void OledDisplay::showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices
     display.setFont(ArialMT_Plain_10);
 
     if (avaibleDevices.size()==0) display.drawString(50,15,"...");
-    int y =15;
+    
 
     for(int i=0; i< avaibleDevices.size(); i++){
 
+        int y=(10*i)+ (scrollingOfset * i) + 15;
         
         if (i== index){
-            display.drawString(45,(y + 10*i)+ (scrollingOfset * i),">  " + avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
+            std::string deviceInfo=(avaibleDevices[i].name + avaibleDevices[i].connectionQuality).c_str();
+            display.drawString(35,y,">");
+            drawText(deviceInfo,y,45,128,7,10);
+            //display.drawString(45,(y + 10*i)+ (scrollingOfset * i),">  " + avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
         }
         else{
             
-            display.drawString(35,(y + 10*i) + (scrollingOfset * i),avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
+            // drawText(deviceInfo,y,35,128,7,10);
+            display.drawString(35,y,avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
         }
     }
     display.display();
@@ -130,13 +135,18 @@ void OledDisplay:: showConnectionState(bool isConnected){
 void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnected){
     display.clear();
     
+
     for(int i=0; i< dir.files.size(); i++){
+
+        int y= 10 * i + 15+(scrollingOfset* i);
+
         if (i== index){
-            display.drawString(40,(10*i + 15)+ (scrollingOfset* index),"  |>" + String(dir.files[i].name()));
+            display.drawString(40,y," >");
+            drawText((String(dir.files[i].name())).c_str(),y,45,128,7,10);
         }
         else{
             
-            display.drawString(45,(10*i + 15) + + (scrollingOfset* index)," > "+String(dir.files[i].name()));
+            display.drawString(45,y," > "+String(dir.files[i].name()));
         }
     }
     showConnectionState(isConnected);
@@ -178,4 +188,31 @@ void OledDisplay::showVolume(int volume){
     display.display();
 
 
+}
+
+void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int char_size =10){
+    
+    slideOffset +=2;
+    for (int i =0; i< text.size(); i++){
+      
+        int x= start_x+(i *char_size) +  slideOffset;
+        
+        if (i== 0 && x >= end_x) {slideOffset =1; Serial.println("last char on end");}
+        else if (x >= end_x) x= x - end_x + start_x; 
+        
+        display.drawString(x,y, String(text[i]));
+        display.display();
+     
+        
+        
+        
+    }   
+    display.clear();
+}
+
+void OledDisplay ::drawText(std::string text,int y,int start_x, int end_x,int char_size, int thresholdLen){
+    if (text.size() >= thresholdLen) slideText(text,y,start_x,end_x,char_size); Serial.println(text.size()); return;
+    display.drawString(start_x,y,text.c_str()); 
+    Serial.println("size is smaller");
+    
 }
