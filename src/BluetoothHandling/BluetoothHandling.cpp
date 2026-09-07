@@ -4,19 +4,19 @@
 BluetoothManager* BluetoothManager::instance = nullptr;
 std::vector<BluetoothDevice> BluetoothManager::avaibleDevices ={};
 
-// BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player): 
-//     audioProcessor(audioProcessor), 
-//     player(player)
+BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player): 
+    audioProcessor(audioProcessor), 
+    player(player)
     
-//     // connectedDevice{},
-//     // connectingDevice{}
-// {
-//     instance = this;
-// }
-BluetoothManager::BluetoothManager()
+    // connectedDevice{},
+    // connectingDevice{}
 {
-    instance=this;
+    instance = this;
 }
+// BluetoothManager::BluetoothManager()
+// {
+//     instance=this;
+// }
 BluetoothStatus BluetoothManager::status= BluetoothStatus::DISCONNECTED;
 // BluetoothManager* BluetoothManager :: instance= nullptr;
 

@@ -56,7 +56,7 @@ ButtonKeys ButtonHandling::getButtonValue(){
   
 
     if (isPressedA ) {
-        Serial.println("Button A pressed");
+        // Serial.println("Button A pressed");
         setOnkeyEnter(onKeyEnterA);     
     }
     if (!onKeyEnterA){
@@ -98,10 +98,19 @@ AnalogKeys ButtonHandling:: getAnalogValue(){
 }
 
 void ButtonHandling:: onButtonEvent(std::function<void()> callback, ButtonKeys key){
+    // if (key==2){
+    //   Serial.println(getButtonValue());
+    //   Serial.println(KEY_B_PRESS);
+    // }
+    
+   
     if (getButtonValue() == key){
         Serial.println("button event recieved");
+        
         callback();
+        
     }
+    
 
 }
 

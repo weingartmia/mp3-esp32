@@ -13,7 +13,7 @@
 #define PRESS_TIME 400 //  miliiseconds press is considered long hold
 #define ROOT "/"
 
-#define SD_CARD_CS D3 // sd card pin
+#define SD_CARD_CS D5 // sd card pin
 
 #define KEY_A_BUTTON 26// button a pin
 #define KEY_B_BUTTON 25 // button b pin

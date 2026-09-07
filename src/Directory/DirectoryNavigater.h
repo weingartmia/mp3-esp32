@@ -6,6 +6,7 @@
 #include <SD.h>
 #include <vector>
 #include <string>
+#include <optional>
 
 struct Selected{
    
@@ -24,8 +25,8 @@ class DirectoryNavigater {
     public:
         DirectoryNavigater(const String& root);
 
-        void init();
-        void openDirectory(const String& dirname);
+        // void init();
+        void openDirectory(const String dirname);
         void openNextDirectory();
         
 
@@ -40,7 +41,7 @@ class DirectoryNavigater {
 
         String returnPath();
 
-        CurrentDirectory currentDirectory;
+        std::optional<CurrentDirectory> currentDirectory;
         Selected selected;
         std::string parentDirectory;
 

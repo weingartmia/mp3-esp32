@@ -8,6 +8,7 @@
 #include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 #include "AudioTools/CoreAudio/AudioMetaData.h"
 #include <SD.h>
+#include <SPI.h>
 
 class AudioProcessor{
     public:

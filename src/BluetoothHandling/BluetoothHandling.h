@@ -27,8 +27,8 @@ enum class BluetoothStatus{
 
 class BluetoothManager {
     public:
-        // BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player);
-        BluetoothManager();
+        BluetoothManager(AudioProcessor* audioProcessor,PlayerManager* player);
+        // BluetoothManager();
 
         void init(const String& localName);
         void startDiscovering();

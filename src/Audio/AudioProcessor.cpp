@@ -13,6 +13,8 @@ void printMetaData(MetaDataType type, const char* str, int len){
 }
 
 void AudioProcessor::init(){
+    Serial.println("init from audio processor");
+    SPI.begin(18,19,23,_csSDPin);
     
   if (!SD.begin(_csSDPin)) {
     Serial.println("SD CARD FAILED, OR NOT PRESENT!");

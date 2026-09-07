@@ -5,36 +5,23 @@
 #define STATES_H
 
 #include <Arduino.h>
-
-#include "Player/PlayerManager.h"
-#include "ButtonHandlingLogic/ButtonHandling.h"
-#include "Audio/AudioProcessor.h"
-#include "BluetoothHandling/BluetoothHandling.h"
-#include "Directory/DirectoryNavigater.h"
-#include "Display/OledDisplay.h"
-
-
+class Context;
 
 class State{
     public:
-        State();
-        void setState(State* state);
+    
 
         virtual void handleAction() =0 ;
         virtual void handleInputs()=0;
         virtual void onConnected() =0;
         virtual void onDisconnected() = 0;
+        void setContext(Context* newCon);
 
 
-        // AudioProcessor processor;
-        ButtonHandling buttons;
-        // DirectoryNavigater navigater;
-        BluetoothManager bluetooth;
-        // PlayerManager player;
-        OledDisplay display;
         virtual ~State()=default;
-
-        State* state;
+    protected:
+        Context* con= nullptr;
+        
 };
 #endif
 class ConnectionChangeState: public State{
@@ -45,8 +32,6 @@ class ConnectionChangeState: public State{
         virtual void onConnected() =0;
         virtual void onDisconnected() = 0;
 
-
-        void handleConnectionChange();
         void passiveConnection();
         
 
@@ -77,36 +62,38 @@ class ErrorState : public ConnectionChangeState{
 
 class LoadingState:public State{
     public:
-        void handleInputs() override;
+        void handleInputs() override ;
         void handleAction() override;
+        void onConnected() override {}
+        void onDisconnected() override{}
         ~LoadingState() override = default;
 
 };
 
-// class SelectingState: public ConnectionChangeState{
-//     public:
+class SelectingState: public ConnectionChangeState{
+    public:
 
-//         void handleInputs() override;
-//         void handleAction() override;
-//         void onConnected() override;
-//         void onDisconnected() override;
-//         ~SelectingState() override= default;
+        void handleInputs() override;
+        void handleAction() override;
+        void onConnected() override;
+        void onDisconnected() override;
+        ~SelectingState() override= default;
 
 
-// };
+};
 
-// class PlayingState: public ConnectionChangeState{
-//     private:
-//         int _playedSongIndex;
-//         double _totalTime;
+class PlayingState: public ConnectionChangeState{
+    private:
+        int _playedSongIndex;
+        double _totalTime;
 
-//         String convertToMinutes(double time);
+        String convertToMinutes(double time);
 
-//     public:
-//         void handleInputs() override;
-//         void handleAction() override;
-//         void onConnected() override;
-//         void onDisconnected() override;
-//         ~PlayingState() override= default;
+    public:
+        void handleInputs() override;
+        void handleAction() override;
+        void onConnected() override;
+        void onDisconnected() override;
+        ~PlayingState() override= default;
 
-// };
+};

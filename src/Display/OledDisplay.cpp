@@ -127,8 +127,8 @@ void OledDisplay::showErrorScreen(){
 
 void OledDisplay:: showConnectionState(bool isConnected){
     
-    if (isConnected) display.drawCircle(1,1,3);
-    else display.fillCircle(1,1,3);
+    if (isConnected) display.drawCircle(125,1,3);
+    else display.fillCircle(125,1,3);
     display.display();
 }
 
@@ -192,20 +192,18 @@ void OledDisplay::showVolume(int volume){
 
 void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int char_size =10){
     
-    slideOffset +=2;
+    slideOffset +=1;
     for (int i =0; i< text.size(); i++){
       
         int x= start_x+(i *char_size) +  slideOffset;
         
-        if (i== 0 && x >= end_x) {slideOffset =1; Serial.println("last char on end");}
+        if (i== 0 && x >= end_x) {slideOffset =1; }
         else if (x >= end_x) x= x - end_x + start_x; 
-        
+       
         display.drawString(x,y, String(text[i]));
+       
         display.display();
-     
-        
-        
-        
+       
     }   
     display.clear();
 }
