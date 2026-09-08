@@ -7,7 +7,7 @@
 
 class OledDisplay{
     public:
-        OledDisplay(const uint8_t adress,int scrollingOfset);
+        OledDisplay(const uint8_t adress);
         void init();
         void setDisplay();
 
@@ -34,10 +34,11 @@ class OledDisplay{
     private:
         DFRobot_OLED12864 display;
         const uint8_t adress;
-        int scrollingOfset;
+        int scrollingOffset;
         void buttonOption();
         void slideText(std::string text,int y,int start_x, int end_x,int char_size);
         void drawText(std::string text,int y,int start_x, int end_x,int char_size, int thresholdLen);
         int slideOffset = 1;
+        int topDirectoryBorder =14;
 };
 #endif

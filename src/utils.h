@@ -20,5 +20,5 @@
 #define KEY_ANALOG 36 // analog pin
 
 #define VOLUME_STEP 5 // step down  step up volume that goes from 0 to 127
-#define SCROLLING_OFFSET 10
+
 

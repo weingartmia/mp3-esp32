@@ -1,10 +1,10 @@
 #include "OledDisplay.h"
 #include "images.h"
 
-OledDisplay::OledDisplay(const uint8_t adress, int scrollingOfset): 
+OledDisplay::OledDisplay(const uint8_t adress): 
 adress(adress), 
-display(adress),
-scrollingOfset(scrollingOfset)
+display(adress)
+
 {}
 
 void OledDisplay::init(){
@@ -53,7 +53,7 @@ void OledDisplay::showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices
 
     for(int i=0; i< avaibleDevices.size(); i++){
 
-        int y=(10*i)+ (scrollingOfset * i) + 15;
+        int y=(10*i)+ (scrollingOffset * i) + 15;
         
         if (i== index){
             std::string deviceInfo=(avaibleDevices[i].name + avaibleDevices[i].connectionQuality).c_str();
@@ -126,27 +126,36 @@ void OledDisplay::showErrorScreen(){
 }
 
 void OledDisplay:: showConnectionState(bool isConnected){
-    
-    if (isConnected) display.drawCircle(125,1,3);
-    else display.fillCircle(125,1,3);
+
+    display.drawLine(0,topDirectoryBorder - 2,128,12);
+    display.setFont(ArialMT_Plain_10);
+    if (isConnected)  display.drawString(115,0,"conn");
+    else display.drawString(115,0,"dis");
     display.display();
 }
 
 void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnected){
     display.clear();
     
+    scrollingOffset= 128/ (dir.files.size() * 1.5);
 
     for(int i=0; i< dir.files.size(); i++){
+        String name=(String(dir.files[i].name())).c_str();
+        std::string nameText= dir.files[i].name();
 
-        int y= 10 * i + 15+(scrollingOfset* i);
+        int y= i *10 + topDirectoryBorder - index* scrollingOffset;
 
-        if (i== index){
-            display.drawString(40,y," >");
-            drawText((String(dir.files[i].name())).c_str(),y,45,128,7,10);
+        if (y < topDirectoryBorder) y= 200; 
+
+        else if (i== index){
+            display.drawString(40,y,">");
+            drawText(nameText,y,45,128,7,2);
+
         }
         else{
             
-            display.drawString(45,y," > "+String(dir.files[i].name()));
+            display.drawString(55,y,name);
+           
         }
     }
     showConnectionState(isConnected);
@@ -192,7 +201,7 @@ void OledDisplay::showVolume(int volume){
 
 void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int char_size =10){
     
-    slideOffset +=1;
+    slideOffset +=2;
     for (int i =0; i< text.size(); i++){
       
         int x= start_x+(i *char_size) +  slideOffset;
@@ -209,8 +218,12 @@ void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int c
 }
 
 void OledDisplay ::drawText(std::string text,int y,int start_x, int end_x,int char_size, int thresholdLen){
-    if (text.size() >= thresholdLen) slideText(text,y,start_x,end_x,char_size); Serial.println(text.size()); return;
+    if (text.size() >= thresholdLen) {
+        slideText(text,y,start_x,end_x,char_size); 
+       
+        return;
+    }
     display.drawString(start_x,y,text.c_str()); 
-    Serial.println("size is smaller");
+   
     
 }

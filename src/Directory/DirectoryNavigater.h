@@ -16,7 +16,8 @@ struct Selected{
 
 struct CurrentDirectory{
     File folder;
-    String name;
+    String path;
+
     std::vector<File> files;
 
 };
@@ -29,8 +30,9 @@ class DirectoryNavigater {
         void openDirectory(const String dirname);
         void openNextDirectory();
         
+        
 
-        void setDirectoryParent();
+        void setDirectoryPath();
         void exitDirectory();
         void getDirectoryFiles();
 

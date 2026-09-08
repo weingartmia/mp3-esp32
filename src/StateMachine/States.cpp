@@ -100,9 +100,13 @@ void SelectingState::handleAction(){
     
     handleInputs();
     
-    if (con->navigater.currentDirectory)
+    if (con->navigater.currentDirectory){
         Serial.println("Navigater is nullptr");
         con->navigater.openDirectory(ROOT);
+    }
+
+   
+
     con->display.drawDirectory(*con->navigater.currentDirectory, con->navigater.selected.index,isConnected);
 
 }

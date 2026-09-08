@@ -8,7 +8,7 @@ navigater(ROOT),
 player(&processor, &navigater),
 bluetooth(&processor, &player),
 buttons(KEY_A_BUTTON,KEY_B_BUTTON,KEY_ANALOG),
-display(0x3c, SCROLLING_OFFSET)
+display(0x3c)
 {   
   Serial.println("Context constructor succesfull");
 }
@@ -21,6 +21,7 @@ void Context::init(){
     bluetooth.init("mp3-esp32");
     buttons.init();
     display.init();
+   
     
     setState(new LoadingState());
     Serial.println("initiliazed context from Context init()");
