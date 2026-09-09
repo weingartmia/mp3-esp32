@@ -27,6 +27,7 @@ class AudioProcessor{
 
         int32_t readAudio(uint8_t* buffer, int32_t len);
         std::string metadata;
+        static AudioProcessor*instance;
         
 
     private:

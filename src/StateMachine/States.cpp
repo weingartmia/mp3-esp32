@@ -62,8 +62,8 @@ void ErrorState::handleAction(){
 
 
 void LoadingState::handleInputs(){
-    con->buttons.onButtonEvent([this](){con->setState(new SelectingState());}, KEY_A_PRESS);
-    //con->buttons.onButtonEvent([this](){con->setState(new SelectingState());}, KEY_B_PRESS);
+    con->buttons.onButtonEvent([this](){con->setState(new ConnectionState());}, KEY_A_PRESS);
+    con->buttons.onButtonEvent([this](){con->setState(new SelectingState());}, KEY_B_PRESS);
     
 }
 void LoadingState::handleAction(){
@@ -108,6 +108,7 @@ void SelectingState::handleAction(){
    
 
     con->display.drawDirectory(*con->navigater.currentDirectory, con->navigater.selected.index,isConnected);
+   
 
 }
 
@@ -120,8 +121,7 @@ void PlayingState:: handleInputs(){
     con->buttons.onButtonEvent([this](){con->bluetooth.volumeUp();}, KEY_A_HOLD);
     con->buttons.onButtonEvent([this](){con->bluetooth.volumeDown();}, KEY_B_HOLD);
     
-    // con->buttons.onAnalogEvent([this](){con->player();}, KEY_ANALOG_DOWN);
-    // con->buttons.onAnalogEvent([this](){con->navigater.decrea();}, KEY_ANALOG_UP);
+
     con->buttons.onAnalogEvent([this](){con->player.next();}, KEY_ANALOG_RIGHT);
     con->buttons.onAnalogEvent([this](){con->player.previous();}, KEY_ANALOG_LEFT);
 
@@ -129,7 +129,7 @@ void PlayingState:: handleInputs(){
 
 
 void PlayingState::onConnected(){
-    Serial.println("connected");
+    return;
 }
 void PlayingState::onDisconnected(){
     Serial.println("connection lost...");
@@ -152,20 +152,23 @@ void PlayingState::handleAction(){
 
     if (con->navigater.selected.index != _playedSongIndex){
         _playedSongIndex = con->navigater.selected.index;
-        _totalTime=con->processor.getMP3Duration(con->navigater.currentDirectory->files[_playedSongIndex]);
+        //_totalTime=con->processor.getMP3Duration(con->navigater.currentDirectory->files[_playedSongIndex]);
+        _totalTime=120;
     }
     double currentTime= con->processor.getCurrentTime();
 
-    String songName = con->navigater.currentDirectory->files[con->navigater.selected.index].name(); // current selected song
-    String context; // metadata author, album
+    String songName = con->navigater.currentDirectory->names[con->navigater.selected.index]; // current selected song
+    String context = "radiohead-amnesiac"; // metadata author, album
+    
     String current = convertToMinutes(currentTime); //current time in minutes
     String total = convertToMinutes(_totalTime); // total time   
 
-    int proggres= currentTime/ _totalTime; //progress time
+    int proggres= (currentTime/ _totalTime) * 100; //progress time
     int volume = con->bluetooth.currentVolume; // current volume
+    Serial.println(volume);
    
-    if (con->navigater.dontHaveAlbum()) context = String(con->navigater.parentDirectory.c_str()); // doesnt have album
-    else String context = String(con->navigater.parentDirectory.c_str()) + " - " +con->navigater.currentDirectory->name;
+    // if (con->navigater.dontHaveAlbum()) context = String(con->navigater.parentDirectory.c_str()); // doesnt have album
+    // else String context = String(con->navigater.parentDirectory.c_str()) + " - " +con->navigater.currentDirectory->name;
     
 
     con->display.showPlaying(songName,context,current,total,proggres,volume);

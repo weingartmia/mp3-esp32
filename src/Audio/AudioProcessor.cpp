@@ -1,13 +1,20 @@
 #include "AudioProcessor.h"
 
-AudioProcessor::AudioProcessor(const uint8_t _csSDPin): _csSDPin(_csSDPin), decoder(&_currentFile,&mp3){};
+AudioProcessor * AudioProcessor::instance= nullptr;
+
+AudioProcessor::AudioProcessor(const uint8_t _csSDPin): 
+_csSDPin(_csSDPin), 
+decoder(&_currentFile,&mp3)
+{
+    instance=this;
+};
 
 void printMetaData(MetaDataType type, const char* str, int len){
-    AudioProcessor * proc;
+    
     
     Serial.print("==> ");
     Serial.print(toStr(type));
-    proc->metadata = toStr(type);
+    AudioProcessor::instance->metadata = toStr(type);
     Serial.print(": ");
     Serial.println(str);
 }
@@ -20,6 +27,7 @@ void AudioProcessor::init(){
     Serial.println("SD CARD FAILED, OR NOT PRESENT!");
     while (1); 
   }
+  
   out.setCallback(printMetaData);
   out.begin();
 }
@@ -57,9 +65,6 @@ void AudioProcessor::closeCurrentFile(){
 
 int32_t AudioProcessor::readAudio(uint8_t* buffer, int32_t len){
 
-    // if (!_currentFile|| !_currentFile.available()){// when audio finishes  there is no more decoding at the moment
-    //     return 0;
-    // }
     if (_paused){ // processor is paused
         memset(buffer,0,len);
         return len;
@@ -155,7 +160,8 @@ double AudioProcessor:: getMP3Duration(File& file){
 
 bool AudioProcessor::songHasEnded(){
 
-    if (!_currentFile || !_currentFile.available()){// when audio finishes  there is no more decoding at the moment
+    if ((!_currentFile || !_currentFile.available()) && !_paused ){// when audio finishes  there is no more decoding at the moment
+        Serial.println("Song has ended");
         return true;
     }
     return false;

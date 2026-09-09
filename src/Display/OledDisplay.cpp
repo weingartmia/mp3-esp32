@@ -29,10 +29,10 @@ void OledDisplay:: buttonOption(){
 void OledDisplay:: showLoadingBegin(){
 
     display.clear();
-    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_24);
-    display.drawString(30,15,"Mp3 player");
-    buttonOption();
+    display.drawString(5,15,"Mp3 player");
+    
 
 
     display.display();
@@ -136,29 +136,35 @@ void OledDisplay:: showConnectionState(bool isConnected){
 
 void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnected){
     display.clear();
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
     
-    scrollingOffset= 128/ (dir.files.size() * 1.5);
+    scrollingOffset= 128/ (dir.names.size() * 1.5);
 
-    for(int i=0; i< dir.files.size(); i++){
-        String name=(String(dir.files[i].name())).c_str();
-        std::string nameText= dir.files[i].name();
+    for(int i=0; i< dir.names.size(); i++){
+       
+        if (i > index+5 || i<index ) continue;
+        
+        
+        String name=(String(dir.names[i])).c_str();
+        std::string nameText(dir.names[i].c_str());
 
-        int y= i *10 + topDirectoryBorder - index* scrollingOffset;
+        int y= (i-index) *10 + topDirectoryBorder;
 
         if (y < topDirectoryBorder) y= 200; 
 
         else if (i== index){
-            display.drawString(40,y,">");
-            drawText(nameText,y,45,128,7,2);
+            display.drawString(5,y,">");
+            drawText(nameText,y,10,128,7,2);
 
         }
         else{
             
-            display.drawString(55,y,name);
+            display.drawString(0,y,name);
            
         }
     }
     showConnectionState(isConnected);
+    
     
 
 }
@@ -178,39 +184,42 @@ void OledDisplay::showPlaying(String songName, String context, String currentTim
 
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(10,10, songName);
-
     display.setFont(ArialMT_Plain_10);
-    display.drawString(10,30, context);
+    display.drawString(60,10, songName.substring(0, songName.length()-3));
+
+    
+    display.drawString(60,30, context);
 
     display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.drawString(0,50, currentTime +" / " + totalTime);
+    display.drawString(50,50, currentTime +" / " + totalTime);
 
-    display.drawProgressBar(0,50,128,10,progress);
+    display.drawProgressBar(0,45,128,6,progress);
     showVolume(volume);
 }
 
 void OledDisplay::showVolume(int volume){
-
-    display.drawProgressBar(20,5,60,5,volume);
+    display.drawString(0,0,"vol");
+    display.drawProgressBar(20,5,60,2,volume);
     display.display();
 
 
 }
 
 void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int char_size =10){
-    
+    text.append("  ");
     slideOffset +=2;
     for (int i =0; i< text.size(); i++){
       
         int x= start_x+(i *char_size) +  slideOffset;
         
         if (i== 0 && x >= end_x) {slideOffset =1; }
-        else if (x >= end_x) x= x - end_x + start_x; 
-       
+        
+        else if (x >= end_x +40) {x= x - end_x + start_x;}
+        
+        else if (x >= end_x && x<end_x +40){continue;}
+        
         display.drawString(x,y, String(text[i]));
-       
+        
         display.display();
        
     }   

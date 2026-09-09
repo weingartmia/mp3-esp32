@@ -48,8 +48,7 @@ void Context::handleConnectionChange(){
             state->onDisconnected();
             break;
         case BluetoothStatus::DISCOVERING:
-            Serial.println("device is discovering from ConnectionState()");
-            Serial.println(bluetooth.avaibleDevices.size());
+
             display.showAvaibleDevices(bluetooth.avaibleDevices,bluetooth.index);
             break;
         case BluetoothStatus::CONNECTING:
@@ -57,7 +56,7 @@ void Context::handleConnectionChange(){
             display.showConnecting(bluetooth.avaibleDevices[bluetooth.index]);
             break;
         case BluetoothStatus::CONNECTED:
-            Serial.println("device is connected from ConnectionState()");
+  
             state->onConnected();
             break;
         case BluetoothStatus::DISCONNECTING:

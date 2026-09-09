@@ -19,6 +19,7 @@
 #define KEY_B_BUTTON 25 // button b pin
 #define KEY_ANALOG 36 // analog pin
 
-#define VOLUME_STEP 5 // step down  step up volume that goes from 0 to 127
+#define VOLUME_STEP 10 // step down  step up volume that goes from 0 to 127
+
 
 

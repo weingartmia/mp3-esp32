@@ -60,7 +60,8 @@ void PlayerManager::stop(){
 void PlayerManager::next(){
     navigater->increaseSelected();
     int currentIndex = navigater->selected.index;
-    String filePath =navigater->currentDirectory->files[currentIndex].name();
+    String filePath =navigater->currentDirectory->paths[currentIndex];
+    Serial.println("final path: " + filePath);
     startAudio(filePath);
 
 } 
@@ -68,7 +69,7 @@ void PlayerManager::next(){
 void PlayerManager::previous(){
     navigater->decreaseSelected();
     int currentIndex = navigater->selected.index;
-    String filePath =navigater->currentDirectory->files[currentIndex].name();
+    String filePath =navigater->currentDirectory->paths[currentIndex];
     startAudio(filePath);
 
 }

@@ -72,9 +72,10 @@ void BluetoothManager ::startDiscovering(){
 
 void BluetoothManager::stopDiscovering(){
 
-    if (status!=BluetoothStatus::DISCOVERING)
-        return;
+    // if (status!=BluetoothStatus::DISCOVERING || )
+    //     return;
         Serial.println("Stopping Bluetooth device discovery...");
+        atdpSource.cancel_discovery();
     if (esp_bt_gap_cancel_discovery() != ESP_OK) {
         Serial.println("Failed to cancel discovery");
     }
@@ -118,7 +119,7 @@ void BluetoothManager::handleDiscoveryStateChanged(esp_bt_gap_discovery_state_t 
 }
 bool BluetoothManager::connect(){// connect to selected device
 
-    if (status==BluetoothStatus::DISCOVERING) stopDiscovering();
+    stopDiscovering();
     Serial.println("connecting device with index");
     Serial.println(index);
 
@@ -186,6 +187,7 @@ void BluetoothManager::setVolume(){
     atdpSource.set_volume(currentVolume);
     if (status==BluetoothStatus::CONNECTED ) {
         esp_avrc_ct_send_set_absolute_volume_cmd(0, currentVolume);
+        atdpSource.set_volume(currentVolume);
     }
 
 }
