@@ -8,17 +8,14 @@ BluetoothManager::BluetoothManager(AudioProcessor* audioProcessor,PlayerManager*
     audioProcessor(audioProcessor), 
     player(player)
     
-    // connectedDevice{},
-    // connectingDevice{}
+
 {
     instance = this;
+   
 }
-// BluetoothManager::BluetoothManager()
-// {
-//     instance=this;
-// }
+
 BluetoothStatus BluetoothManager::status= BluetoothStatus::DISCONNECTED;
-// BluetoothManager* BluetoothManager :: instance= nullptr;
+
 
 void BluetoothManager::init(const String& localName){
 
@@ -29,6 +26,7 @@ void BluetoothManager::init(const String& localName){
     atdpSource.set_ssid_callback(searchSSID);
     atdpSource.set_data_callback(audioDataCallback);
     atdpSource.set_discovery_mode_callback(handleDiscoveryStateChanged);
+    
     
     Serial.println("initiliazed bluetooth from BluetoothManager init");
 
@@ -145,7 +143,7 @@ int32_t BluetoothManager::audioDataCallback(uint8_t *data, int32_t bytes){// cal
         return 0;
     }
 
-    int32_t result = instance->audioProcessor->readAudio(data, bytes);
+    // int32_t result = instance->audioProcessor->readAudio(data, bytes);
     if (result==0){
         memset(data,0,bytes);
         return bytes;
@@ -183,11 +181,13 @@ void BluetoothManager::volumeUp(){
     setVolume();
 }
 void BluetoothManager::setVolume(){
-
-    atdpSource.set_volume(currentVolume);
+    uint8_t vol= (uint8_t)currentVolume;
+    
     if (status==BluetoothStatus::CONNECTED ) {
-        esp_avrc_ct_send_set_absolute_volume_cmd(0, currentVolume);
-        atdpSource.set_volume(currentVolume);
+        Serial.println(currentVolume);
+        atdpSource.set_volume(vol);
+        // esp_avrc_ct_send_set_absolute_volume_cmd(0, vol);
+        
     }
 
 }

@@ -37,7 +37,7 @@ class ButtonHandling{
         ButtonKeys getButtonValue();
         ButtonKeys analyseButton(bool& onKeyEnter, uint8_t pin,ButtonKeys press, ButtonKeys hold);
 
-        void onButtonEvent(std::function<void()> callback, ButtonKeys key);
+        void onButtonEvent(std::function<void()> callback,ButtonKeys event, ButtonKeys key);
         void onAnalogEvent(std::function<void()> callback, AnalogKeys key);
  
     private:

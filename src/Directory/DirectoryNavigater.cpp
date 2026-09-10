@@ -18,7 +18,7 @@ void DirectoryNavigater::openDirectory(const String dirname){
     if (!root || !root.isDirectory()) return;
 
     if (!currentDirectory->folder || !currentDirectory->folder.isDirectory()) {parentDirectory= root.path();}
-    
+    else currentDirectory->folder.close();
 
     Serial.println("directory path: "+ currentDirectory->path);
     selected.index=0;
@@ -34,9 +34,11 @@ void DirectoryNavigater::openDirectory(const String dirname){
 } 
 
 void DirectoryNavigater:: openNextDirectory(){
-    Serial.println("current selected folder: "+String(currentDirectory->paths[selected.index]));
+    Serial.println("current  folder: "+String(currentDirectory->folder.path()));
+    
     parentDirectory= currentDirectory->folder.path();
     setDirectoryPath();
+    // currentDirectory->folder.close();
     openDirectory(currentDirectory->path);  
 
 }
@@ -44,14 +46,23 @@ void DirectoryNavigater:: openNextDirectory(){
 
 void DirectoryNavigater::exitDirectory(){
 
-    currentDirectory->folder.close();
+    
 
     if (String(currentDirectory->folder.name()) == root) return;
-
     removeDirectoryPath();
+    setExitParent();
+    // currentDirectory->folder.close();
     
     openDirectory(currentDirectory->path);
 
+}
+void DirectoryNavigater::setExitParent(){
+
+    int lastSlash= parentDirectory.lastIndexOf('/');   
+    if (lastSlash==0) {parentDirectory="/";}
+    else {parentDirectory= parentDirectory.substring(0,lastSlash);}
+
+    
 }
 void DirectoryNavigater::getDirectoryFiles(){
     while (true) {
@@ -86,19 +97,19 @@ void DirectoryNavigater:: removeDirectoryPath(){
 }
 
 void DirectoryNavigater::increaseSelected(){
-    if (selected.index >= currentDirectory->paths.size()) selected.index=0;
+    if (selected.index +1  >= currentDirectory->paths.size()-1) selected.index=0;
     else selected.index +=1;
 
 }
 void DirectoryNavigater::decreaseSelected(){
-    if (selected.index <= 0) selected.index=currentDirectory->paths.size();
+    if (selected.index -1 <= 0) selected.index=currentDirectory->paths.size();
     else selected.index -=1;
 
 }
 
 String DirectoryNavigater:: returnPath(){
 
-    return currentDirectory->path;
+    return currentDirectory->paths[selected.index];
 }
 
 bool DirectoryNavigater:: dontHaveAlbum(){

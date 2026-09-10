@@ -50,7 +50,7 @@ class BluetoothManager {
 
         static std::vector<BluetoothDevice> avaibleDevices;
         static BluetoothStatus status;
-        uint8_t currentVolume;
+        int currentVolume =80;
 
         void increaseIndex();
         void decreaseIndex();

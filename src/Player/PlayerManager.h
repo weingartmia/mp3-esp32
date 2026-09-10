@@ -8,7 +8,6 @@
 
 enum class PlayerStates{
     PLAYING,
-    STOPPED,
     PAUSED
 };
 
@@ -16,11 +15,13 @@ class PlayerManager{
     public:
         PlayerManager(AudioProcessor* audioProcessor,DirectoryNavigater* navigater);
         void startAudio(String filePath);
+        void togglePlayStop();
         void play();
-        void pause();
+        void pause(); // just for atdp external commands
         void stop();
         void next();
         void previous();
+        void onSongEnded();
     private:
         AudioProcessor* audioProcessor;
         DirectoryNavigater* navigater;

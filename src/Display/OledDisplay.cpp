@@ -53,7 +53,8 @@ void OledDisplay::showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices
 
     for(int i=0; i< avaibleDevices.size(); i++){
 
-        int y=(10*i)+ (scrollingOffset * i) + 15;
+        int y=(10*i) + 15;
+        display.setTextAlignment(TEXT_ALIGN_LEFT);
         
         if (i== index){
             std::string deviceInfo=(avaibleDevices[i].name + avaibleDevices[i].connectionQuality).c_str();
@@ -77,11 +78,11 @@ void OledDisplay::showConnecting(BluetoothDevice device){
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     
     display.setFont(ArialMT_Plain_10);
-    display.drawString(10,2,"conecting..");
-    display.drawString(10,10,device.name);
+    display.drawString(20,10,"conecting..");
+    display.drawString(20,20,device.name);
 
     display.setFont(ArialMT_Plain_10);
-    display.drawString(10,25,device.connectionQuality + "");
+    display.drawString(20,25,device.connectionQuality + "");
     display.display();
 }
 
@@ -185,7 +186,7 @@ void OledDisplay::showPlaying(String songName, String context, String currentTim
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(60,10, songName.substring(0, songName.length()-3));
+    display.drawString(60,10, songName.substring(0, songName.length()-4));
 
     
     display.drawString(60,30, context);
@@ -207,22 +208,27 @@ void OledDisplay::showVolume(int volume){
 
 void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int char_size =10){
     text.append("  ");
-    slideOffset +=2;
-    for (int i =0; i< text.size(); i++){
+    
+    slideOffset +=1;
+    int x= start_x+ slideOffset;
+    if (x-20 >= end_x) slideOffset=0;
+    // for (int i =0; i< text.size(); i++){
       
-        int x= start_x+(i *char_size) +  slideOffset;
+        // int x= start_x+(i *char_size) +  slideOffset;
         
-        if (i== 0 && x >= end_x) {slideOffset =1; }
+        // if (i== 0 && x >= end_x) {slideOffset =1; }
         
-        else if (x >= end_x +40) {x= x - end_x + start_x;}
+        // else if (x >= end_x +40) {x= x - end_x + start_x;}
         
-        else if (x >= end_x && x<end_x +40){continue;}
+        // else if (x >= end_x && x<end_x +40){continue;}
         
-        display.drawString(x,y, String(text[i]));
+        // display.drawString(x,y, String(text[i]));
+        display.drawString(x,y,String(text.c_str()));
+        
         
         display.display();
        
-    }   
+    // }   
     display.clear();
 }
 

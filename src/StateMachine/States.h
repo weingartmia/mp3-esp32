@@ -15,7 +15,12 @@ class State{
         virtual void handleInputs()=0;
         virtual void onConnected() =0;
         virtual void onDisconnected() = 0;
+
         void setContext(Context* newCon);
+
+        // bool firstEnter= true;
+        // bool onEnter();
+        
 
 
         virtual ~State()=default;
@@ -84,6 +89,7 @@ class SelectingState: public ConnectionChangeState{
 
 class PlayingState: public ConnectionChangeState{
     private:
+        bool _onEnter =true;
         int _playedSongIndex;
         double _totalTime;
 

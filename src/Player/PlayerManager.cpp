@@ -7,32 +7,36 @@ PlayerManager::PlayerManager(AudioProcessor* audioProcessor, DirectoryNavigater*
 audioProcessor(audioProcessor), 
 navigater(navigater)
 {
-    state= PlayerStates::STOPPED;
+    state= PlayerStates::PLAYING;
 }
 
 void PlayerManager:: startAudio(String filePath){
-
+    
+    audioProcessor->playCurrentFile();
     if (!audioProcessor->openFile(filePath)){
         Serial.println("failed to play a song from playerManager play()");
         
         return;
     }
-    Serial.printf("[%s]\n", filePath);
+   
     state= PlayerStates::PLAYING;
     Serial.println("playing");
 
 }
+void PlayerManager::togglePlayStop(){
+    if (state==PlayerStates::PLAYING)pause();
+    
+    else  play();
+}
 void PlayerManager::play(){
-    if (state == PlayerStates::PLAYING) {
-        audioProcessor->pauseCurrentFile();
-        pause();
-        return;
-    }
 
+    state= PlayerStates::PLAYING;
     audioProcessor->playCurrentFile();
-    String filePath = navigater->returnPath();
-    startAudio(filePath);
+    
+   
+}
 
+void PlayerManager::onSongEnded(){
     if(audioProcessor->songHasEnded()){
         Serial.println("song has ended");
         next();
@@ -40,11 +44,6 @@ void PlayerManager::play(){
 
 }
 void PlayerManager::pause(){
-    if (state == PlayerStates::PAUSED){ 
-        audioProcessor->playCurrentFile();
-        play();
-        return;
-    };
 
     state=PlayerStates::PAUSED;
     audioProcessor->pauseCurrentFile();
@@ -53,14 +52,13 @@ void PlayerManager::pause(){
 }
 void PlayerManager::stop(){
     audioProcessor->closeCurrentFile();
-    state =PlayerStates::STOPPED;
     Serial.println("stopped from player manager stop()");
 
 }
 void PlayerManager::next(){
     navigater->increaseSelected();
-    int currentIndex = navigater->selected.index;
-    String filePath =navigater->currentDirectory->paths[currentIndex];
+    
+    String filePath =navigater->returnPath();
     Serial.println("final path: " + filePath);
     startAudio(filePath);
 
@@ -68,8 +66,8 @@ void PlayerManager::next(){
 
 void PlayerManager::previous(){
     navigater->decreaseSelected();
-    int currentIndex = navigater->selected.index;
-    String filePath =navigater->currentDirectory->paths[currentIndex];
+   
+    String filePath =navigater->returnPath();
     startAudio(filePath);
 
 }

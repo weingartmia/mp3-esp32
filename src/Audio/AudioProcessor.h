@@ -23,7 +23,7 @@ class AudioProcessor{
         // void printMetaData(MetaDataType type, const char* str, int len);
         
         bool songHasEnded();
-        double getMP3Duration(File& file);
+        double getMP3Duration();
 
         int32_t readAudio(uint8_t* buffer, int32_t len);
         std::string metadata;

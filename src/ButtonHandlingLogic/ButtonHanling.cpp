@@ -53,12 +53,13 @@ ButtonKeys ButtonHandling ::analyseButton(bool& onKeyEnter, uint8_t pin, ButtonK
 
     bool isPressed = digitalRead(pin)==0;
     if (isPressed){
-      Serial.println("pressed: "+ pin);
+      
       setOnkeyEnter(onKeyEnter);
     }
     if(!onKeyEnter){
-      if (handleButtonPress(onKeyEnter,pin)==2) {return press;}
-      else if (handleButtonPress(onKeyEnter, pin) ==1)  {return hold;}
+      int res = handleButtonPress(onKeyEnter,pin);
+      if (res ==2) {return press;}
+      else if (res ==1)  {Serial.println(hold);return hold;}
 
     }
     return NO_KEY;
@@ -68,11 +69,12 @@ ButtonKeys ButtonHandling ::analyseButton(bool& onKeyEnter, uint8_t pin, ButtonK
 ButtonKeys ButtonHandling::getButtonValue(){
 
   ButtonKeys A=analyseButton(onKeyEnterA,keyA,KEY_A_PRESS,KEY_A_HOLD);
-
   ButtonKeys B = analyseButton(onKeyEnterB,keyB,KEY_B_PRESS,KEY_B_HOLD);
-  if (A!= NO_KEY) { return A;}
-  if (B!= NO_KEY) { return B; }
-  if (B== NO_KEY && A==NO_KEY) {return NO_KEY;}
+
+  if (A != NO_KEY) { Serial.println(A);return A;}
+  else if (B != NO_KEY) { return B; }
+  // else if (B== NO_KEY && A==NO_KEY) {return NO_KEY;}
+  return NO_KEY;
  
 
 }
@@ -102,11 +104,9 @@ AnalogKeys ButtonHandling:: getAnalogValue(){
 
 }
 
-void ButtonHandling:: onButtonEvent(std::function<void()> callback, ButtonKeys key){
+void ButtonHandling:: onButtonEvent(std::function<void()> callback,ButtonKeys event, ButtonKeys key){
 
-    
-   
-    if (getButtonValue() == key){
+  if (event == key){
         Serial.println("button event recieved");
         
         callback();

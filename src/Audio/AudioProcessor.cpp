@@ -34,7 +34,11 @@ void AudioProcessor::init(){
 
 bool AudioProcessor::openFile(const String& filepath){
 
-    closeCurrentFile();
+//    closeCurrentFile();
+    if (_currentFile){
+    _currentFile.close();
+    playedFrames=0;
+    }
 
     _currentFile= SD.open(filepath);
 
@@ -42,6 +46,14 @@ bool AudioProcessor::openFile(const String& filepath){
         Serial.println("failed to open file");
         return false;
     } 
+//     Serial.printf(
+//     "file: %d, file position: %u, file size: %u\n",
+//     (bool)_currentFile,
+//     _currentFile.position(),
+//     _currentFile.size()
+// );
+
+
     decoder.transformationReader().resizeResultQueue(1024 * 8);
     if (!decoder.begin()) {
         Serial.println("Decoder begin() failed");
@@ -49,7 +61,6 @@ bool AudioProcessor::openFile(const String& filepath){
         return false;
     }
     
-    Serial.printf("Opened file: %s\n", filepath.c_str());
     return true;
 }
 
@@ -58,8 +69,9 @@ void AudioProcessor::closeCurrentFile(){
 
         playedFrames =0;
         _currentFile.close();
-        decoder.end();
+        
     }
+    decoder.end();
 
 }
 
@@ -70,6 +82,7 @@ int32_t AudioProcessor::readAudio(uint8_t* buffer, int32_t len){
         return len;
     }
     int32_t bytes_read = decoder.readBytes(buffer, len);
+    
     playedFrames += bytes_read / (channels * sizeof(int16_t));
 
     if (bytes_read < len) {
@@ -93,20 +106,20 @@ void AudioProcessor::pauseCurrentFile(){
 void AudioProcessor::playCurrentFile(){
     _paused = false;
 }
-double AudioProcessor:: getMP3Duration(File& file){
-    const uint32_t start = file.position();
+double AudioProcessor:: getMP3Duration(){
+    const uint32_t start = _currentFile.position();
 
     uint8_t header[4];
 
     uint64_t totalSamples = 0;
     uint32_t sampleRate = 0;
 
-    while (file.read(header, 4) == 4) {
+    while (_currentFile.read(header, 4) == 4) {
 
         
         if (header[0] != 0xFF || (header[1] & 0xE0) != 0xE0) { // ssync word: 11 bits set
 
-            file.seek(file.position() - 3);
+            _currentFile.seek(_currentFile.position() - 3);
             continue;
         }
 
@@ -146,10 +159,10 @@ double AudioProcessor:: getMP3Duration(File& file){
         if (frameLength < 4)
             break;
 
-        file.seek(file.position() + frameLength - 4);
+        _currentFile.seek(_currentFile.position() + frameLength - 4);
     }
 
-    file.seek(start);
+    _currentFile.seek(start);
 
     if (sampleRate == 0)
         return 0.0;

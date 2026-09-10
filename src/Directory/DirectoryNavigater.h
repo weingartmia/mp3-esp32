@@ -52,6 +52,7 @@ class DirectoryNavigater {
 
     private:
         const String& root;
+        void setExitParent();
         
         
 
