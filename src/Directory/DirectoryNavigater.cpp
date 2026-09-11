@@ -120,3 +120,10 @@ bool DirectoryNavigater:: dontHaveAlbum(){
     return false;
 
 }
+
+bool DirectoryNavigater::isCurrrentSelectedDIrectory(){
+    File fil = SD.open(currentDirectory->paths[selected.index]);
+    if (fil.isDirectory()) {fil.close();Serial.println("is dir");return true;}
+    fil.close();
+    return false;
+}

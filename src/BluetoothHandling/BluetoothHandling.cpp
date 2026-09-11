@@ -28,6 +28,7 @@ void BluetoothManager::init(const String& localName){
     atdpSource.set_discovery_mode_callback(handleDiscoveryStateChanged);
     
     
+    
     Serial.println("initiliazed bluetooth from BluetoothManager init");
 
     
@@ -92,6 +93,7 @@ void BluetoothManager:: handleConnectionChanged(esp_a2d_connection_state_t state
         break;
     case ESP_A2D_CONNECTION_STATE_CONNECTED:
         Serial.println("****connected****");
+        instance->setVolume();
         status= BluetoothStatus::CONNECTED;
         break;
     case ESP_A2D_CONNECTION_STATE_DISCONNECTING:
@@ -143,7 +145,7 @@ int32_t BluetoothManager::audioDataCallback(uint8_t *data, int32_t bytes){// cal
         return 0;
     }
 
-    // int32_t result = instance->audioProcessor->readAudio(data, bytes);
+    int32_t result = instance->audioProcessor->readAudio(data, bytes);
     if (result==0){
         memset(data,0,bytes);
         return bytes;
@@ -169,24 +171,31 @@ void BluetoothManager:: buttonCommands(uint8_t key, bool isReleased){// handling
 }
 
 void BluetoothManager:: volumeDown(){
-    currentVolume -= VOLUME_STEP;
+   
 
-    if (currentVolume <= 0) currentVolume=0;
+    if (currentVolume - VOLUME_STEP <= 0) currentVolume=0;
+    else  currentVolume -= VOLUME_STEP;
     setVolume();
 }
 void BluetoothManager::volumeUp(){
-    currentVolume += VOLUME_STEP;
+    
 
-    if (currentVolume >= 127) currentVolume=127;
+    if (currentVolume + VOLUME_STEP >= 127) currentVolume=127;
+    else currentVolume+= VOLUME_STEP;
     setVolume();
 }
 void BluetoothManager::setVolume(){
+    uint8_t current_volume = atdpSource.get_volume();
+
     uint8_t vol= (uint8_t)currentVolume;
-    
+    atdpSource.set_volume((uint8_t)currentVolume);
+
     if (status==BluetoothStatus::CONNECTED ) {
         Serial.println(currentVolume);
-        atdpSource.set_volume(vol);
-        // esp_avrc_ct_send_set_absolute_volume_cmd(0, vol);
+        Serial.println(current_volume);
+        
+        
+        // 
         
     }
 
@@ -203,3 +212,4 @@ void BluetoothManager::decreaseIndex(){
     else index -=1;
 
 }
+// esp_avrc_ct_send_set_absolute_volume_cmd(0, vol);

@@ -88,11 +88,16 @@ void LoadingState::handleAction(){
 
 }
 
+void SelectingState::openFile(){
+    
+    if (!con->navigater.isCurrrentSelectedDIrectory()) con->setState(new PlayingState());
+    
 
+}
 void SelectingState::handleInputs(){
     // if (!onEnter()) return;
     ButtonKeys event = con->buttons.getButtonValue();
-    con->buttons.onButtonEvent([this](){con->setState(new PlayingState());},event, KEY_A_PRESS);
+    con->buttons.onButtonEvent([this](){openFile();},event, KEY_A_PRESS);
     con->buttons.onButtonEvent([this](){con->setState(new LoadingState());},event, KEY_B_PRESS);
 
     con->buttons.onButtonEvent([this](){con->bluetooth.volumeUp();},event, KEY_A_HOLD);
@@ -167,22 +172,22 @@ String PlayingState:: convertToMinutes(double time){
 
 void PlayingState::handleAction(){
     handleInputs();
-    // con->player.onSongEnded();
+    con->player.onSongEnded();
  
     if (_onEnter){
         
         Serial.println("started playing..");
         con->player.startAudio(con->navigater.returnPath());
         _onEnter= false;
-        _totalTime=120;
+        _totalTime=con->processor.getMP3Duration();
         
     }
-    // if (con->navigater.selected.index != _playedSongIndex){
+    if (con->navigater.selected.index != _playedSongIndex){
 
-    //     _playedSongIndex = con->navigater.selected.index;
-    //     //_totalTime=con->processor.getMP3Duration(con->navigater.currentDirectory->files[_playedSongIndex]);
-    //     _totalTime=120;
-    // }
+        _playedSongIndex = con->navigater.selected.index;
+        //_totalTime=con->processor.getMP3Duration(con->navigater.currentDirectory->files[_playedSongIndex]);
+        _totalTime=120;
+    }
     double currentTime= con->processor.getCurrentTime();
 
     String songName = con->navigater.currentDirectory->names[con->navigater.selected.index]; // current selected song

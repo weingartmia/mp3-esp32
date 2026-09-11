@@ -43,6 +43,7 @@ class DirectoryNavigater {
         void decreaseSelected();
 
         bool dontHaveAlbum();
+        bool isCurrrentSelectedDIrectory();
 
         String returnPath();
 

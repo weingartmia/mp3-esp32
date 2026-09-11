@@ -76,6 +76,8 @@ class LoadingState:public State{
 };
 
 class SelectingState: public ConnectionChangeState{
+    private:
+        void openFile();
     public:
 
         void handleInputs() override;
@@ -89,6 +91,7 @@ class SelectingState: public ConnectionChangeState{
 
 class PlayingState: public ConnectionChangeState{
     private:
+        
         bool _onEnter =true;
         int _playedSongIndex;
         double _totalTime;

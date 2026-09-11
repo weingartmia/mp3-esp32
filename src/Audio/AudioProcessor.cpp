@@ -20,6 +20,7 @@ void printMetaData(MetaDataType type, const char* str, int len){
 }
 
 void AudioProcessor::init(){
+    
     Serial.println("init from audio processor");
     SPI.begin(18,19,23,_csSDPin);
     
@@ -106,70 +107,92 @@ void AudioProcessor::pauseCurrentFile(){
 void AudioProcessor::playCurrentFile(){
     _paused = false;
 }
-double AudioProcessor:: getMP3Duration(){
-    const uint32_t start = _currentFile.position();
 
-    uint8_t header[4];
+void AudioProcessor::getMetaData(String path){
+    AudioSourceSD tempSource;
+    MP3DecoderHelix decoder;
+    // MP3Info info;
+    
 
-    uint64_t totalSamples = 0;
-    uint32_t sampleRate = 0;
-
-    while (_currentFile.read(header, 4) == 4) {
-
-        
-        if (header[0] != 0xFF || (header[1] & 0xE0) != 0xE0) { // ssync word: 11 bits set
-
-            _currentFile.seek(_currentFile.position() - 3);
-            continue;
-        }
-
-        int version = (header[1] >> 3) & 0x03;
-        int layer   = (header[1] >> 1) & 0x03;
-        int bitrateIndex = (header[2] >> 4) & 0x0F;
-        int sampleRateIndex = (header[2] >> 2) & 0x03;
-        int padding = (header[2] >> 1) & 0x01;
-
-        
-        if (layer != 3); 
-            return 0;
-
-        if (bitrateIndex == 0 || bitrateIndex == 15 ||sampleRateIndex == 3)
-            continue;
-
-        static const int bitrateTableMPEG1[] = {
-            0, 32, 40, 48, 56, 64, 80, 96,
-            112, 128, 160, 192, 224, 256, 320
-        };
-
-        static const int sampleRateTable[] = {
-            44100, 48000, 32000
-        };
-
-        if (version ==  1) 
-            return 0; // mpeg-1 only
-
-        int bitrate =bitrateTableMPEG1[bitrateIndex] * 1000;
-        sampleRate =sampleRateTable[sampleRateIndex];
-
-        totalSamples += 1152;
-
-        uint32_t frameLength =
-            (144UL * bitrate) / sampleRate + padding;
-
-        if (frameLength < 4)
-            break;
-
-        _currentFile.seek(_currentFile.position() + frameLength - 4);
+    if (!tempSource.open(path)) {
+        Serial.println("Failed to open file for metadata");
+        return;
     }
 
-    _currentFile.seek(start);
+    if (decoder.getInfo(tempSource, info)) {
+        float durationSec = (float)info.samples / info.sample_rate;
+        Serial.printf("Duration: %.2f sec\n", durationSec);
+    } else {
+        Serial.println("Failed to read MP3 info");
+  }
 
-    if (sampleRate == 0)
-        return 0.0;
+  tempSource.close();
+
+}
+// double AudioProcessor:: getMP3Duration(){
+//     const uint32_t start = _currentFile.position();
+
+//     uint8_t header[4];
+
+//     uint64_t totalSamples = 0;
+//     uint32_t sampleRate = 0;
+
+//     while (_currentFile.read(header, 4) == 4) {
+
+        
+//         if (header[0] != 0xFF || (header[1] & 0xE0) != 0xE0) { // ssync word: 11 bits set
+
+//             _currentFile.seek(_currentFile.position() - 3);
+//             continue;
+//         }
+
+//         int version = (header[1] >> 3) & 0x03;
+//         int layer   = (header[1] >> 1) & 0x03;
+//         int bitrateIndex = (header[2] >> 4) & 0x0F;
+//         int sampleRateIndex = (header[2] >> 2) & 0x03;
+//         int padding = (header[2] >> 1) & 0x01;
+
+        
+//         if (layer != 3); 
+//             return 0;
+
+//         if (bitrateIndex == 0 || bitrateIndex == 15 ||sampleRateIndex == 3)
+//             continue;
+
+//         static const int bitrateTableMPEG1[] = {
+//             0, 32, 40, 48, 56, 64, 80, 96,
+//             112, 128, 160, 192, 224, 256, 320
+//         };
+
+//         static const int sampleRateTable[] = {
+//             44100, 48000, 32000
+//         };
+
+//         if (version ==  1) 
+//             return 0; // mpeg-1 only
+
+//         int bitrate =bitrateTableMPEG1[bitrateIndex] * 1000;
+//         sampleRate =sampleRateTable[sampleRateIndex];
+
+//         totalSamples += 1152;
+
+//         uint32_t frameLength =
+//             (144UL * bitrate) / sampleRate + padding;
+
+//         if (frameLength < 4)
+//             break;
+
+//         _currentFile.seek(_currentFile.position() + frameLength - 4);
+//     }
+
+//     _currentFile.seek(start);
+
+//     if (sampleRate == 0)
+//         return 0.0;
         
 
-    return static_cast<double>(totalSamples) / sampleRate;
-}
+//     return static_cast<double>(totalSamples) / sampleRate;
+// }
 
 bool AudioProcessor::songHasEnded(){
 
