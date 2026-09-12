@@ -97,12 +97,12 @@ void DirectoryNavigater:: removeDirectoryPath(){
 }
 
 void DirectoryNavigater::increaseSelected(){
-    if (selected.index +1  >= currentDirectory->paths.size()-1) selected.index=0;
+    if (selected.index +1  > currentDirectory->paths.size()-1) selected.index=0;
     else selected.index +=1;
 
 }
 void DirectoryNavigater::decreaseSelected(){
-    if (selected.index -1 <= 0) selected.index=currentDirectory->paths.size();
+    if (selected.index -1 < 0) selected.index=currentDirectory->paths.size()-1;
     else selected.index -=1;
 
 }

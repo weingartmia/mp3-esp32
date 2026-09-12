@@ -11,7 +11,7 @@ navigater(navigater)
 }
 
 void PlayerManager:: startAudio(String filePath){
-    
+    state= PlayerStates::PLAYING;
     audioProcessor->playCurrentFile();
     if (!audioProcessor->openFile(filePath)){
         Serial.println("failed to play a song from playerManager play()");
@@ -37,7 +37,7 @@ void PlayerManager::play(){
 }
 
 void PlayerManager::onSongEnded(){
-    if(audioProcessor->songHasEnded()){
+    if(audioProcessor->songHasEnded() && state == PlayerStates::PLAYING){
         Serial.println("song has ended");
         next();
     }
@@ -51,6 +51,7 @@ void PlayerManager::pause(){
     
 }
 void PlayerManager::stop(){
+    state= PlayerStates::STOPPED;
     audioProcessor->closeCurrentFile();
     Serial.println("stopped from player manager stop()");
 
@@ -70,4 +71,9 @@ void PlayerManager::previous(){
     String filePath =navigater->returnPath();
     startAudio(filePath);
 
+}
+
+bool PlayerManager::isPlaying(){
+    if (state== PlayerStates::PLAYING) return true;
+    return false;
 }

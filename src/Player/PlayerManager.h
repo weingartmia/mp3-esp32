@@ -8,7 +8,8 @@
 
 enum class PlayerStates{
     PLAYING,
-    PAUSED
+    PAUSED,
+    STOPPED
 };
 
 class PlayerManager{
@@ -22,6 +23,7 @@ class PlayerManager{
         void next();
         void previous();
         void onSongEnded();
+        bool isPlaying();
     private:
         AudioProcessor* audioProcessor;
         DirectoryNavigater* navigater;

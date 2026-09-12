@@ -59,7 +59,7 @@ void OledDisplay::showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices
         if (i== index){
             std::string deviceInfo=(avaibleDevices[i].name + avaibleDevices[i].connectionQuality).c_str();
             display.drawString(35,y,">");
-            drawText(deviceInfo,y,45,128,7,10);
+            drawText(deviceInfo,y,45,128,10);
             //display.drawString(45,(y + 10*i)+ (scrollingOfset * i),">  " + avaibleDevices[i].name + avaibleDevices[i].connectionQuality);
         }
         else{
@@ -155,7 +155,7 @@ void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnecte
 
         else if (i== index){
             display.drawString(5,y,">");
-            drawText(nameText,y,10,128,7,2);
+            drawText(nameText,y,10,128,2);
 
         }
         else{
@@ -181,32 +181,42 @@ void OledDisplay::showDisconnected(){
 
 }
 
-void OledDisplay::showPlaying(String songName, String context, String currentTime, String totalTime, int progress,int volume){
+void OledDisplay::showPlaying(String songName, String context, String currentTime, String totalTime, int progress,int volume, bool playing){
 
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_CENTER);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(60,10, songName.substring(0, songName.length()-4));
 
+    drawText(songName.substring(0, songName.length()-4).c_str(),10,60,128,20);
+    // display.drawString(60,10, songName.substring(0, songName.length()-4));
+
+    // drawText(context.c_str(),20,60,128,30);
+    display.drawString(60,20, context);
     
-    display.drawString(60,30, context);
-
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.drawString(50,50, currentTime +" / " + totalTime);
 
     display.drawProgressBar(0,45,128,6,progress);
-    showVolume(volume);
-}
 
+    showVolume(volume);
+    showStatusPlay(playing);
+
+    display.display();
+}
+void OledDisplay::showStatusPlay(bool playing){
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+        if (playing) {display.drawString(64,30,"| |");}
+        else display.drawString(64,30,">");
+}
 void OledDisplay::showVolume(int volume){
     display.drawString(0,0,"vol");
     display.drawProgressBar(20,5,60,2,volume);
-    display.display();
+    
 
 
 }
 
-void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int char_size =10){
+void OledDisplay::slideText(std::string text,int y,int start_x, int end_x){
     text.append("  ");
     
     slideOffset +=1;
@@ -232,9 +242,9 @@ void OledDisplay::slideText(std::string text,int y,int start_x, int end_x, int c
     display.clear();
 }
 
-void OledDisplay ::drawText(std::string text,int y,int start_x, int end_x,int char_size, int thresholdLen){
+void OledDisplay ::drawText(std::string text,int y,int start_x, int end_x, int thresholdLen){
     if (text.size() >= thresholdLen) {
-        slideText(text,y,start_x,end_x,char_size); 
+        slideText(text,y,start_x,end_x); 
        
         return;
     }

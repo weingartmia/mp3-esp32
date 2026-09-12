@@ -97,6 +97,7 @@ class PlayingState: public ConnectionChangeState{
         double _totalTime;
 
         String convertToMinutes(double time);
+        void stopPlaying();
 
     public:
         void handleInputs() override;

@@ -24,8 +24,9 @@ class OledDisplay{
         void showConnectionState(bool isConnected);
 
         void drawDirectory(CurrentDirectory dir, int index,bool isConnected);
-        void showPlaying(String songName, String context, String currentTime, String totalTime, int progress, int volume);
+        void showPlaying(String songName, String context, String currentTime, String totalTime, int progress, int volume, bool playing);
         void showVolume( int volume);
+        void showStatusPlay(bool playing);
 
         
 
@@ -36,8 +37,8 @@ class OledDisplay{
         const uint8_t adress;
         int scrollingOffset;
         void buttonOption();
-        void slideText(std::string text,int y,int start_x, int end_x,int char_size);
-        void drawText(std::string text,int y,int start_x, int end_x,int char_size, int thresholdLen);
+        void slideText(std::string text,int y,int start_x, int end_x);
+        void drawText(std::string text,int y,int start_x, int end_x, int thresholdLen);
         int slideOffset = 1;
         int topDirectoryBorder =14;
 };

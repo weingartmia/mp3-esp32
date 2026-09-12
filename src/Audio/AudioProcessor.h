@@ -12,6 +12,21 @@
 #include <SD.h>
 #include <SPI.h>
 
+struct Metadata{
+    String album;
+    String artist;
+    String title;
+};
+
+struct Header{
+    uint32_t sampleRate;
+    uint32_t frames;
+    uint32_t samplesPerFrame;
+
+
+
+};
+
 class AudioProcessor{
     public:
         AudioProcessor(const uint8_t csSDPin);
@@ -21,14 +36,15 @@ class AudioProcessor{
         void pauseCurrentFile();
         void playCurrentFile();
         double getCurrentTime();
-
+        double getTotalTime();
+        void processFrame();
         // void printMetaData(MetaDataType type, const char* str, int len);
         
         bool songHasEnded();
-        void getMetaData(String path);
+        // void getMetaData(String path);
 
         int32_t readAudio(uint8_t* buffer, int32_t len);
-        std::string metadata;
+        Metadata metadata ={};
         static AudioProcessor*instance;
         
 
@@ -39,11 +55,15 @@ class AudioProcessor{
 
         MP3DecoderHelix mp3;
         EncodedAudioStream decoder;
-        MetaDataOutput out;
+        MetaDataOutput outMeta;
+        MultiOutput out;
+        StreamCopy metaCopier;
         // MetaDataID3 i3d;
 
 
         uint64_t playedFrames = 0;
+
+        Header _header ={};
 
         bool _paused =false;
 

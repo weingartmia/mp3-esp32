@@ -135,12 +135,16 @@ void SelectingState::handleAction(){
 
 }
 
+void PlayingState::stopPlaying(){
+    con->player.stop();
+    con->setState(new SelectingState());
 
+}
 void PlayingState:: handleInputs(){
     // onEnter();
     ButtonKeys event = con->buttons.getButtonValue();
     con->buttons.onButtonEvent([this](){con->player.togglePlayStop();},event, KEY_A_PRESS); // or pause
-    con->buttons.onButtonEvent([this](){con->player.stop();con->setState(new SelectingState());},event, KEY_B_PRESS);
+    con->buttons.onButtonEvent([this](){stopPlaying();},event, KEY_B_PRESS);
 
     con->buttons.onButtonEvent([this](){con->bluetooth.volumeUp();},event, KEY_A_HOLD);
     con->buttons.onButtonEvent([this](){con->bluetooth.volumeDown();},event, KEY_B_HOLD);
@@ -164,6 +168,7 @@ String PlayingState:: convertToMinutes(double time){
 
     int minutes = time/ 60;
     int seconds = std::fmod(time,60);
+    if (seconds <10) String(minutes) + ":"+ "0"+String(seconds);
 
     return String(minutes) + ":"+ String(seconds);
 
@@ -172,38 +177,38 @@ String PlayingState:: convertToMinutes(double time){
 
 void PlayingState::handleAction(){
     handleInputs();
-    con->player.onSongEnded();
+    
  
     if (_onEnter){
         
         Serial.println("started playing..");
         con->player.startAudio(con->navigater.returnPath());
         _onEnter= false;
-        _totalTime=con->processor.getMP3Duration();
+        _totalTime=con->processor.getTotalTime();
         
     }
+    else con->player.onSongEnded();
+
     if (con->navigater.selected.index != _playedSongIndex){
 
         _playedSongIndex = con->navigater.selected.index;
         //_totalTime=con->processor.getMP3Duration(con->navigater.currentDirectory->files[_playedSongIndex]);
-        _totalTime=120;
+        _totalTime=con->processor.getTotalTime();
     }
     double currentTime= con->processor.getCurrentTime();
 
     String songName = con->navigater.currentDirectory->names[con->navigater.selected.index]; // current selected song
-    String context = "radiohead-amnesiac"; // metadata author, album
+    String context = con->processor.metadata.artist + " - "+ con->processor.metadata.album; // metadata author, album
     
     String current = convertToMinutes(currentTime); //current time in minutes
     String total = convertToMinutes(_totalTime); // total time   
 
     int proggres= (currentTime/ _totalTime) * 100; //progress time
     int volume = con->bluetooth.currentVolume; // current volume
-    
-   
-    // if (con->navigater.dontHaveAlbum()) context = String(con->navigater.parentDirectory.c_str()); // doesnt have album
-    // else String context = String(con->navigater.parentDirectory.c_str()) + " - " +con->navigater.currentDirectory->name;
-    
 
-    con->display.showPlaying(songName,context,current,total,proggres,volume);
+    bool playing= con->player.isPlaying();
+   
+
+    con->display.showPlaying(songName,context,current,total,proggres,volume,playing);
     
 }
