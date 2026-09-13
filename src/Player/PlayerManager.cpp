@@ -46,14 +46,19 @@ void PlayerManager::onSongEnded(){
 void PlayerManager::pause(){
 
     state=PlayerStates::PAUSED;
+
     audioProcessor->pauseCurrentFile();
     Serial.println("audio is paused");
     
 }
 void PlayerManager::stop(){
-    state= PlayerStates::STOPPED;
-    audioProcessor->closeCurrentFile();
-    Serial.println("stopped from player manager stop()");
+    if (state!= PlayerStates::STOPPED){
+        audioProcessor->closeCurrentFile();
+        state= PlayerStates::STOPPED;
+        Serial.println("stopped from player manager stop()");
+
+    }
+    
 
 }
 void PlayerManager::next(){

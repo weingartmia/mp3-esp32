@@ -31,7 +31,11 @@ void OledDisplay:: showLoadingBegin(){
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_24);
+    display.drawString(5,2,"--------------------");
     display.drawString(5,15,"Mp3 player");
+    display.drawString(5,30,"--------------------");
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(10, 50,"press A");
     
 
 
@@ -75,21 +79,21 @@ void OledDisplay::showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices
 void OledDisplay::showConnecting(BluetoothDevice device){
 
     display.clear();
-    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
     
     display.setFont(ArialMT_Plain_10);
     display.drawString(20,10,"conecting..");
-    display.drawString(20,20,device.name);
+    display.drawString(20,25,device.name);
 
     display.setFont(ArialMT_Plain_10);
-    display.drawString(20,25,device.connectionQuality + "");
+    display.drawString(20,35,device.connectionQuality + "");
     display.display();
 }
 
 void OledDisplay:: showConnectionSucces(BluetoothDevice device){
 
     display.clear();
-    display.setTextAlignment(TEXT_ALIGN_RIGHT);
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_10);
     display.drawString(0,10,"connected to"+device.name);
 
@@ -97,6 +101,15 @@ void OledDisplay:: showConnectionSucces(BluetoothDevice device){
 
 }
 
+void OledDisplay:: showInitSDFail(){
+    display.clear();
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(0,10,"failed to open SD card");
+
+    display.display();
+
+}
 void OledDisplay:: showDisconnecting(){
 
     display.clear();
@@ -130,8 +143,8 @@ void OledDisplay:: showConnectionState(bool isConnected){
 
     display.drawLine(0,topDirectoryBorder - 2,128,12);
     display.setFont(ArialMT_Plain_10);
-    if (isConnected)  display.drawString(115,0,"conn");
-    else display.drawString(115,0,"dis");
+    if (isConnected)  display.drawString(50,0,"connected");
+    else display.drawString(115,0,"disconnected");
     display.display();
 }
 
@@ -172,10 +185,10 @@ void OledDisplay::drawDirectory(CurrentDirectory dir, int index, bool isConnecte
 
 void OledDisplay::showDisconnected(){
     display.clear();
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(5,0,"device is disconnected");
     display.setTextAlignment(TEXT_ALIGN_CENTER);
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(15,0,"device is disconnected");
-    
     buttonOption();
     display.display();
 

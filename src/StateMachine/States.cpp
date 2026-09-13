@@ -168,9 +168,8 @@ String PlayingState:: convertToMinutes(double time){
 
     int minutes = time/ 60;
     int seconds = std::fmod(time,60);
-    if (seconds <10) String(minutes) + ":"+ "0"+String(seconds);
-
-    return String(minutes) + ":"+ String(seconds);
+    if (seconds <10) return String(minutes) + ":"+ "0"+String(seconds);
+    else return String(minutes) + ":"+ String(seconds);
 
 
 }

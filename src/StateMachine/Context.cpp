@@ -17,7 +17,7 @@ display(0x3c)
 
 void Context::init(){
 
-    processor.init();
+    if (!processor.init()) {display.showInitSDFail();}
     bluetooth.init("mp3-esp32");
     buttons.init();
     display.init();

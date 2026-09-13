@@ -15,9 +15,15 @@ void printMetaData(MetaDataType type, const char* str, int len){
     
     Serial.print("==> ");
     Serial.print(toStr(type));
-    if (toStr(type) == "Album") AudioProcessor::instance->metadata.album = String(str);
-    if (toStr(type) == "Artist") AudioProcessor::instance->metadata.artist = String(str);
-    if (toStr(type) == "title") AudioProcessor::instance->metadata.title = String(str);
+    if (!str|| str == nullptr){
+        AudioProcessor::instance->metadata.album= "";
+        AudioProcessor::instance->metadata.artist="";
+        AudioProcessor::instance->metadata.title="";
+
+    }
+    else if (toStr(type) == "Album") AudioProcessor::instance->metadata.album = String(str);
+    else if (toStr(type) == "Artist") AudioProcessor::instance->metadata.artist = String(str);
+    else if (toStr(type) == "title") AudioProcessor::instance->metadata.title = String(str);
 
 
     Serial.print(": ");
@@ -26,14 +32,15 @@ void printMetaData(MetaDataType type, const char* str, int len){
     
 }
 
-void AudioProcessor::init(){
+bool AudioProcessor::init(){
     
     Serial.println("init from audio processor");
     SPI.begin(18,19,23,_csSDPin);
     
   if (!SD.begin(_csSDPin)) {
     Serial.println("SD CARD FAILED, OR NOT PRESENT!");
-    while (1); 
+    // while (1); 
+    return false;
   }
   
   out.add(outMeta);
@@ -41,6 +48,7 @@ void AudioProcessor::init(){
 
   outMeta.setCallback(printMetaData);
   outMeta.begin();
+  return true;
   
 }
 
@@ -136,7 +144,18 @@ bool AudioProcessor::songHasEnded(){
     
 }
 
+uint32_t AudioProcessor::getXingOffset(int8_t version,uint32_t channelMode ){
+    Serial.printf("channel mode: %d\n", channelMode);
+    uint32_t xingOffset;
+    if (version == 3) {              // MPEG-1
+        xingOffset =  4 + (channelMode == 3 ? 17 : 32);
+        } 
+    else {                         // MPEG-2 / 2.5
+    xingOffset =  4 + (channelMode == 3 ? 9 : 17);
+    }
+    return xingOffset;
 
+}
  void AudioProcessor:: processFrame(){
 
     uint32_t samplesPerFrame=0;
@@ -175,11 +194,11 @@ if (_currentFile.read(id3, 10) == 10 && id3[0] == 'I' && id3[1] == 'D' && id3[2]
             // break;
     }
     
-        // if (h[0] != 0xFF || (h[1] & 0xE0) != 0xE0){
-        //     Serial.println("-----bad beggining-------");
-        //     _currentFile.seek(headerPosition+1);
-        //     continue;
-        // }
+        if (h[0] != 0xFF || (h[1] & 0xE0) != 0xE0){
+            Serial.println("-----bad beggining-------");
+            _currentFile.seek(headerPosition+1);
+            
+        }
 
 
         int8_t version = (h[1] >> 3) & 0x03;// mpeg version
@@ -187,6 +206,7 @@ if (_currentFile.read(id3, 10) == 10 && id3[0] == 'I' && id3[1] == 'D' && id3[2]
         uint8_t bitrateIndex = (h[2] >> 4) & 0x0F;//  bitrate index
         uint8_t sr = (h[2] >> 2) & 0x03;//sample-rate index
         uint8_t padding = (h[2] >> 1) & 0x01; // when is audio encoded, length of bytes may become float, padding tells if there is one extra byte
+        uint8_t channelMode = (h[3] >> 6) & 0x03;
     
         if (layer != 1){ // target is layer |||.
         _currentFile.seek(headerPosition+1);
@@ -233,15 +253,15 @@ if (_currentFile.read(id3, 10) == 10 && id3[0] == 'I' && id3[1] == 'D' && id3[2]
                 frameSize = (72 * bitrate * 1000) / sampleRate + padding;
             }
 
-            _currentFile.seek(headerPosition + 36);
+    _currentFile.seek(getXingOffset(version,channelMode) + headerPosition);
 
-            char tag[4];
+    char tag[5];
 
-        if (_currentFile.read((uint8_t*)tag, 4) == 4) {
-            Serial.printf(
-            "Tag: %c%c%c%c\n",
-            tag[0], tag[1], tag[2], tag[3]
-        );
+    if (_currentFile.read((uint8_t*)tag, 4) == 4) {
+        Serial.printf(
+        "Tag: %c%c%c%c\n",
+        tag[0], tag[1], tag[2], tag[3]
+    );
 
     uint32_t flags =
     ((uint32_t)_currentFile.read() << 24) |

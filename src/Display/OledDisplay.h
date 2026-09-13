@@ -9,7 +9,9 @@ class OledDisplay{
     public:
         OledDisplay(const uint8_t adress);
         void init();
+
         void setDisplay();
+        void showInitSDFail();
 
         void showLoadingBegin();
         void showAvaibleDevices(std::vector<BluetoothDevice> avaibleDevices,int index );

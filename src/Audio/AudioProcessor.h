@@ -30,7 +30,7 @@ struct Header{
 class AudioProcessor{
     public:
         AudioProcessor(const uint8_t csSDPin);
-        void init();
+        bool init();
         bool openFile(const String& filepath);
         void closeCurrentFile();
         void pauseCurrentFile();
@@ -38,6 +38,7 @@ class AudioProcessor{
         double getCurrentTime();
         double getTotalTime();
         void processFrame();
+
         // void printMetaData(MetaDataType type, const char* str, int len);
         
         bool songHasEnded();
@@ -49,7 +50,7 @@ class AudioProcessor{
         
 
     private:
-
+        uint32_t getXingOffset(int8_t version,uint32_t channelMode);
         const uint8_t _csSDPin;
         File _currentFile;
 
