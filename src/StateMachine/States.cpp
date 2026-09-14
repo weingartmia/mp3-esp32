@@ -24,7 +24,7 @@ void ConnectionState::handleInputs(){
     con->buttons.onButtonEvent([this]() {con->bluetooth.startDiscovering();},event,KEY_A_PRESS);
     con->buttons.onButtonEvent([this]() {con->bluetooth.stopDiscovering();},event,KEY_A_HOLD);
 
-    con->buttons.onButtonEvent([this]() {con->setState(new SelectingState());},event,KEY_B_PRESS);
+    con->buttons.onButtonEvent([this]() {con->bluetooth.stopDiscovering();con->setState(new SelectingState());},event,KEY_B_PRESS);
 
     con->buttons.onAnalogEvent([this]() {con->bluetooth.connect();},KEY_ANALOG_RIGHT);
     con->buttons.onAnalogEvent([this]() {con->bluetooth.disconnect();},KEY_ANALOG_LEFT);
@@ -63,7 +63,7 @@ void ErrorState::handleInputs(){
     ButtonKeys event = con->buttons.getButtonValue();
 
     con->buttons.onButtonEvent([this](){con->setState(new ConnectionState());},event, KEY_A_PRESS);
-    con->buttons.onButtonEvent([this](){con->setState(new SelectingState());},event, KEY_B_PRESS);
+    con->buttons.onButtonEvent([this](){con->bluetooth.stopDiscovering();con->setState(new SelectingState());},event, KEY_B_PRESS);
 
 }
 void ErrorState::handleAction(){

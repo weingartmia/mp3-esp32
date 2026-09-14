@@ -46,8 +46,7 @@ void DirectoryNavigater:: openNextDirectory(){
 
 void DirectoryNavigater::exitDirectory(){
 
-    
-
+    if (currentDirectory->folder.name() == nullptr) return;
     if (String(currentDirectory->folder.name()) == root) return;
     removeDirectoryPath();
     setExitParent();

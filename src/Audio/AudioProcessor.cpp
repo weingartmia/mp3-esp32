@@ -1,4 +1,5 @@
 #include "AudioProcessor.h"
+#include "esp_task_wdt.h"
 
 AudioProcessor * AudioProcessor::instance= nullptr;
 
@@ -15,7 +16,7 @@ void printMetaData(MetaDataType type, const char* str, int len){
     
     Serial.print("==> ");
     Serial.print(toStr(type));
-    if (!str|| str == nullptr){
+    if (!str|| str[0] == '\0'){
         AudioProcessor::instance->metadata.album= "";
         AudioProcessor::instance->metadata.artist="";
         AudioProcessor::instance->metadata.title="";
@@ -33,7 +34,8 @@ void printMetaData(MetaDataType type, const char* str, int len){
 }
 
 bool AudioProcessor::init(){
-    
+    // esp_task_wdt_init(10, true);  // increase timeout from 5s to 10s
+    // esp_task_wdt_add(NULL); 
     Serial.println("init from audio processor");
     SPI.begin(18,19,23,_csSDPin);
     
@@ -45,7 +47,7 @@ bool AudioProcessor::init(){
   
   out.add(outMeta);
  
-
+decoder.transformationReader().resizeResultQueue(1024 * 8);
   outMeta.setCallback(printMetaData);
   outMeta.begin();
   return true;
@@ -54,11 +56,14 @@ bool AudioProcessor::init(){
 
 bool AudioProcessor::openFile(const String& filepath){
 
-//    closeCurrentFile();
+    // closeCurrentFile();
+
     _paused= false;
     if (_currentFile){
-    _currentFile.close();
-    playedFrames=0;
+        decoder.end();
+        _currentFile.close();
+        playedFrames=0;
+    
     }
 
     _currentFile= SD.open(filepath);
@@ -72,7 +77,7 @@ bool AudioProcessor::openFile(const String& filepath){
     processFrame();
     _currentFile.seek(0);
 
-    decoder.transformationReader().resizeResultQueue(1024 * 8);
+  
     if (!decoder.begin()) {
         Serial.println("Decoder begin() failed");
         _currentFile.close();
@@ -83,6 +88,7 @@ bool AudioProcessor::openFile(const String& filepath){
 }
 
 void AudioProcessor::closeCurrentFile(){
+    
     if (_currentFile){
 
         playedFrames =0;
@@ -91,6 +97,7 @@ void AudioProcessor::closeCurrentFile(){
         
     }
     decoder.end();
+    
 
 }
 
@@ -100,6 +107,19 @@ int32_t AudioProcessor::readAudio(uint8_t* buffer, int32_t len){
         memset(buffer,0,len);
         return len;
     }
+    // esp_task_wdt_reset();
+    // static uint32_t calls = 0;
+
+    // calls++;
+
+    // if ((calls % 1000) == 0) {
+    //     Serial.printf(
+    //         "audio: calls=%lu free=%lu largest=%lu\n",
+    //         calls,
+    //         ESP.getFreeHeap(),
+    //         ESP.getMaxAllocHeap()
+    //     );
+    // }
     int32_t bytes_read = decoder.readBytes(buffer, len);
     
     playedFrames += bytes_read / (channels * sizeof(int16_t));// frames are diivided by number of channels and how many bytes fit into each channel
@@ -160,7 +180,7 @@ uint32_t AudioProcessor::getXingOffset(int8_t version,uint32_t channelMode ){
 
     uint32_t samplesPerFrame=0;
     uint32_t bitrate=0;// bits per second
-    uint32_t frameCount=0;
+    
 
     uint8_t h[4];
  
@@ -254,38 +274,45 @@ if (_currentFile.read(id3, 10) == 10 && id3[0] == 'I' && id3[1] == 'D' && id3[2]
             }
 
     _currentFile.seek(getXingOffset(version,channelMode) + headerPosition);
+            
+    _header.samplesPerFrame=samplesPerFrame;
+    _header.sampleRate= sampleRate;
+    _header.frames= getFrames();
 
+    
+}
+
+uint32_t AudioProcessor::getFrames(){
     char tag[5];
+    uint32_t frameCount=0;
 
     if (_currentFile.read((uint8_t*)tag, 4) == 4) {
         Serial.printf(
         "Tag: %c%c%c%c\n",
         tag[0], tag[1], tag[2], tag[3]
     );
+    }
 
-    uint32_t flags =
-    ((uint32_t)_currentFile.read() << 24) |
-    ((uint32_t)_currentFile.read() << 16) |
-    ((uint32_t)_currentFile.read() << 8)  |
-    (uint32_t)_currentFile.read();
-
-    if (flags & 0x01) {
-                frameCount =
+    if (strcmp(tag, "Xing")==0 || strcmp(tag, "Info")==0){
+        uint32_t flags =
         ((uint32_t)_currentFile.read() << 24) |
         ((uint32_t)_currentFile.read() << 16) |
         ((uint32_t)_currentFile.read() << 8)  |
         (uint32_t)_currentFile.read();
 
+        if (flags & 0x01) {
+                frameCount =
+            ((uint32_t)_currentFile.read() << 24) |
+            ((uint32_t)_currentFile.read() << 16) |
+            ((uint32_t)_currentFile.read() << 8)  |
+            (uint32_t)_currentFile.read();
+
+        }
+
+    }
     Serial.printf("Xing frame count: %lu\n", frameCount);
-}
-}
-    _header.samplesPerFrame=samplesPerFrame;
-    _header.sampleRate= sampleRate;
-    _header.frames= frameCount;
+    return frameCount;
 
-    Serial.println(frameCount);
-    
 }
-
 
 

@@ -38,6 +38,7 @@ class AudioProcessor{
         double getCurrentTime();
         double getTotalTime();
         void processFrame();
+        
 
         // void printMetaData(MetaDataType type, const char* str, int len);
         
@@ -51,6 +52,7 @@ class AudioProcessor{
 
     private:
         uint32_t getXingOffset(int8_t version,uint32_t channelMode);
+        uint32_t getFrames();
         const uint8_t _csSDPin;
         File _currentFile;
 
